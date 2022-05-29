@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Operation</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body>
+    <div>
+      <div
+        class="flex w-full flex-col gap-y-4 border border-double border-black p-4 text-sm text-slate-700"
+      >
+        <!-- ? logo with invoice type and date part -->
+        <div class="flew-row flex justify-between">
+          <div>Logo de la DIM AD</div>
+          <div>
+            <h1 class="font-bol text-xl text-black">Facture proforma</h1>
+            <p class="mt-9 text-right text-sm">
+              Date: <span class="ml-6"> 09/05/2022 </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- ? company and client details -->
+        <div class="flex flex-row gap-x-2 border border-black p-2">
+          <!-- company -->
+          <div class="space-y-3 border-r border-black pr-3">
+            <h1 class="text-lg text-black">DIM-AD</h1>
+            <p class="truncate text-sm">S.A.R.L au capital de 1.000.000 F</p>
+            <div class="truncate text-sm">
+              Adresse
+              <div class="flex flex-row gap-x-4">
+                <p>BP 209</p>
+                <p>non loin de la pharmacie Yotiki</p>
+              </div>
+            </div>
+            <p class="truncate text-sm">
+              Contact : <span>05 06 29 8350 - 07 07 27 6071</span>
+            </p>
+            <p class="truncate text-sm">
+              Téléphone : <span>27 30 62 5060</span>
+            </p>
+          </div>
+
+          <!-- client -->
+          <div class="space-y-5">
+            <div class="grid grid-cols-2">
+              <div class="text-black">A:</div>
+              <div>Nom du client</div>
+            </div>
+            <div class="grid grid-cols-2">
+              <div class="text-black">Adresse:</div>
+              <div>Adresse du client</div>
+            </div>
+            <div class="grid grid-cols-2">
+              <div class="text-black">Contact:</div>
+              <div>Contact du client</div>
+            </div>
+            <div class="grid grid-cols-2">
+              <div class="text-black">Envoyer à:</div>
+              <div>Nom de celui qui récevra la commande</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ? order table details -->
+        <div>
+          <table class="w-full">
+            <thead class="text-xs">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-right">N°</th>
+                <th scope="col" class="px-6 py-3 text-left">Description</th>
+                <th scope="col" class="px-6 py-3 text-right">Qté</th>
+                <th scope="col" class="px-6 py-3 text-center">Unité</th>
+                <th scope="col" class="px-6 py-3 text-right">Prix U.</th>
+                <th scope="col" class="px-6 py-3 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="mt-2">
+              <tr>
+                <td class="px-6 py-4 text-right">1</td>
+                <th scope="row" class="px-6 py-4 text-left">
+                  TITAN 30KG ROUGE
+                </th>
+                <td class="px-6 py-4 text-right">3</td>
+                <td class="px-6 py-4 text-center">pot</td>
+                <td class="px-6 py-4 text-right">16 000</td>
+                <td class="px-6 py-4 text-right">78 000</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 text-right">2</td>
+                <th scope="row" class="px-6 py-4 text-left">
+                  CIMENT NOIR 42.5 LIMAK
+                </th>
+                <td class="px-6 py-4 text-right">20</td>
+                <td class="px-6 py-4 text-center">sac</td>
+                <td class="px-6 py-4 text-right">4 000</td>
+                <td class="px-6 py-4 text-right">80 000</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 text-right">3</td>
+                <th scope="row" class="px-6 py-4 text-left">
+                  PINCEAU FRANCAIS 70
+                </th>
+                <td class="px-6 py-4 text-right">1</td>
+                <td class="px-6 py-4 text-center">pcs</td>
+                <td class="px-6 py-4 text-right">500</td>
+                <td class="px-6 py-4 text-right">500</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* "@suadelabs/vue3-multiselect/dist/vue3-multiselect.css"; */
+
+@layer base {
+  [type="text"],
+  [type="email"],
+  [type="password"],
+  [type="number"],
+  [type="date"],
+  textarea,
+  select,
+  input {
+    @apply block w-full bg-kSecondaryColor rounded-lg focus:border-kPrimaryColor border-kPrimaryColor focus:ring-kPrimaryColor ring-0 focus:ring-0 border-0 focus:border-0 px-3 py-2 text-sm focus:outline-none dark:placeholder:text-kWhiteColor/25 dark:bg-kPrimaryColor;
+  }
+}

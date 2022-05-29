@@ -1,0 +1,97 @@
+<div class="px-12 py-20 text-xs">
+  <div class="mb-4">
+    <!-- ? logo with invoice type and date part -->
+    <div class="flew-row flex justify-between">
+      <div>Logo de la DIM AD</div>
+      <div class="mb-2">
+        <h1 class="font-bol text-lg font-bold">Rapport de stock</h1>
+        <p class="mt-9 text-right">
+          Date: <span class="ml-6"> 09/05/2022 </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ? company and client details -->
+    <div class="flex flex-row gap-x-2 border border-black p-2">
+      <!-- company -->
+      <div class="space-y-3 border-r border-black pr-3">
+        <h1 class="text-lg text-black">DIM-AD</h1>
+        <p class="truncate">S.A.R.L au capital de 1.000.000 F</p>
+        <div class="truncate">
+          Adresse
+          <div class="flex flex-row gap-x-4">
+            <p>BP 209</p>
+            <p>non loin de la pharmacie Yotiki</p>
+          </div>
+        </div>
+        <p class="truncate">
+          Contact : <span>05 06 29 8350 - 07 07 27 6071</span>
+        </p>
+        <p class="truncate">Téléphone : <span>27 30 62 5060</span></p>
+      </div>
+
+      <!-- client -->
+      <div class="space-y-5">
+        <div class="grid grid-cols-2">
+          <div class="text-black">A:</div>
+          <div>Nom du client</div>
+        </div>
+        <div class="grid grid-cols-2">
+          <div class="text-black">Adresse:</div>
+          <div>Adresse du client</div>
+        </div>
+        <div class="grid grid-cols-2">
+          <div class="text-black">Contact:</div>
+          <div>Contact du client</div>
+        </div>
+        <div class="grid grid-cols-2">
+          <div class="text-black">Envoyer à:</div>
+          <div>Nom de celui qui récevra la commande</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ? display table -->
+  <table class="relative w-full table-fixed border-collapse">
+    <thead>
+      <tr
+        class="font divide-x divide-slate-700 border border-slate-700 bg-slate-200"
+      >
+        <th class="w-1/12 truncate px-2 text-right">N°</th>
+        <th class="w-6/12 truncate px-2 text-left">Description</th>
+        <th class="w-2/12 truncate px-2 text-right">Dispo</th>
+        <th class="w-1/12 truncate px-2 text-right">Alerte</th>
+        <th class="w-1/12 truncate px-2 text-right">Optimal</th>
+        <th class="w-1/12 truncate px-2 text-right">Cmd</th>
+      </tr>
+    </thead>
+
+    <tbody class="w-full border border-slate-700">
+      <tr class="divide-x divide-slate-700">
+        <td class="w-1/12 truncate px-2 text-right">1</td>
+        <td class="w-6/12 truncate px-2 text-left">TITAN 30KG BLEU</td>
+        <td class="w-2/12 truncate px-2 text-right">89 pot</td>
+        <td class="w-1/12 truncate px-2 text-right">100</td>
+        <td class="w-1/12 truncate px-2 text-right">300</td>
+        <td class="w-1/12 truncate px-2 text-right">111</td>
+      </tr>
+      <tr class="divide-x divide-slate-700">
+        <td class="w-1/12 truncate px-2 text-right">2</td>
+        <td class="w-6/12 truncate px-2 text-left">CASQUE CHANTIER INGCO</td>
+        <td class="w-2/12 truncate px-2 text-right">12 pcs</td>
+        <td class="w-1/12 truncate px-2 text-right">18</td>
+        <td class="w-1/12 truncate px-2 text-right">60</td>
+        <td class="w-1/12 truncate px-2 text-right">48</td>
+      </tr>
+      <tr class="divide-x divide-slate-700">
+        <td class="w-1/12 truncate px-2 text-right">2</td>
+        <td class="w-6/12 truncate px-2 text-left">CASQUE CHANTIER INGCO</td>
+        <td class="w-2/12 truncate px-2 text-right">12 pcs</td>
+        <td class="w-1/12 truncate px-2 text-right">18</td>
+        <td class="w-1/12 truncate px-2 text-right">60</td>
+        <td class="w-1/12 truncate px-2 text-right">48</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
