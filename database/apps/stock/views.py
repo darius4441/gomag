@@ -1,15 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
-from django.shortcuts import render
 from rest_framework import filters, viewsets
-from rest_framework.decorators import (
-    action,
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 
 from .models import CategoryUOM, Inventory, Product, Uom
 from .serializers import (
@@ -22,6 +14,10 @@ from .serializers import (
 
 class ProductPagination(PageNumberPagination):
     page_size = 17
+
+
+class PosPagination(PageNumberPagination):
+    page_size = 10
 
 
 class UomCategoryViewSet(viewsets.ModelViewSet):
@@ -41,7 +37,8 @@ class AllProductViewSet(viewsets.ModelViewSet):
 
 class POSViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    queryset = Product.objects.filter(isArchived=False).order_by("name")[:12]
+    pagination_class = PosPagination
+    queryset = Product.objects.filter(isArchived=False).order_by("name")
     filter_backends = [filters.SearchFilter]
     search_fields = ("code", "name", "category", "providers")
 
@@ -52,18 +49,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     pagination_class = ProductPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ("code", "name", "category", "providers")
-
-    @action(detail=False)
-    def all_products(self, request):
-        all_products = Product.objects.filter(isArchived=False).order_by(
-            "name"
-        )
-
-        serializer = self.get_serializer(all_products, many=True)
-        return Response(serializer.data)
-
-        serializer = self.get_serializer(pos_products, many=True)
-        return Response(serializer.data)
 
     def perform_create(self, serializer):
         serializer.save(

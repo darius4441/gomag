@@ -1,25 +1,22 @@
 <script setup>
-import { ref, computed } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { RouterLink } from "vue-router";
-
-import MyMenu from "./my-menu.vue";
-
 import { MenuButton, MenuItem } from "@headlessui/vue";
 import {
-  MenuAlt4Icon,
-  BellIcon,
-  PresentationChartLineIcon,
-  TruckIcon,
-  ShoppingBagIcon,
-  LibraryIcon,
-  BeakerIcon,
   BanIcon,
-  UserGroupIcon,
+  BeakerIcon,
+  BellIcon,
   CogIcon,
+  LibraryIcon,
+  MenuAlt4Icon,
+  PresentationChartLineIcon,
+  ShoppingBagIcon,
+  TruckIcon,
+  UserGroupIcon,
 } from "@heroicons/vue/solid";
-
+import { computed, ref } from "vue-demi";
+import { RouterLink } from "vue-router";
+import { useTempStore } from "../../stores/temp";
 import UserProfile from "../profiles/profile-nav.vue";
+import MyMenu from "./my-menu.vue";
 import ToggleThemeBtn from "./toggle-theme-btn.vue";
 
 const store = useTempStore();

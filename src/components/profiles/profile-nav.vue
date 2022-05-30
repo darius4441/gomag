@@ -1,12 +1,10 @@
 <script setup>
-import { useAuthStore } from "../../stores/auth";
-import { useRouter, RouterLink } from "vue-router";
+import photoUrl from "@/assets/images/default/profile_pic.png";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
+import { LogoutIcon, UserCircleIcon } from "@heroicons/vue/solid";
 import axios from "axios";
-
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import { UserCircleIcon, LogoutIcon } from "@heroicons/vue/solid";
-
-import photoUrl from "@/assets/images/profile_pic.png";
+import { RouterLink, useRouter } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 
 // access to store and router in composition mode
 const storeAuth = useAuthStore();

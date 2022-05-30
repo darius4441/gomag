@@ -1,10 +1,8 @@
 <script setup>
-import { RouterView } from "vue-router";
-import { useAuthStore } from "./stores/auth";
-
 import axios from "axios";
-
+import { RouterView } from "vue-router";
 import Navigation from "./components/shared/nav-bar.vue";
+import { useAuthStore } from "./stores/auth";
 
 // access to store and router in composition mode
 const storeAuth = useAuthStore();
