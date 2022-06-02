@@ -5,12 +5,14 @@ from .views import (
     AlertProductViewSet,
     InventoryViewSet,
     POSViewSet,
+    ProductCategoryViewSet,
     ProductViewSet,
     UomCategoryViewSet,
     UomViewSet,
 )
 
 router = DefaultRouter()
+router.register("categories", ProductCategoryViewSet, basename="categories")
 router.register("products", ProductViewSet, basename="products")
 router.register("pos", POSViewSet, basename="pos")
 router.register(

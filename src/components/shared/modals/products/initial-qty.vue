@@ -1,19 +1,18 @@
 <script setup>
-import * as zod from "zod";
-import { toFormValidator } from "@vee-validate/zod";
-import { useForm } from "vee-validate";
-import { useToast } from "vue-toast-notification";
 import {
-  TransitionRoot,
-  TransitionChild,
   Dialog,
   DialogOverlay,
   DialogTitle,
+  TransitionChild,
+  TransitionRoot,
 } from "@headlessui/vue";
-
-import MyButton from "../../my-action.vue";
-import MyInput from "../../forms/BaseInput.vue";
+import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import { useForm } from "vee-validate";
+import { useToast } from "vue-toast-notification";
+import * as zod from "zod";
+import MyInput from "../../forms/BaseInput.vue";
+import MyButton from "../../my-action.vue";
 
 const props = defineProps({
   isOpen: { type: Boolean, default: false },
@@ -120,6 +119,7 @@ const onSubmit = handleSubmit(async (values) => {
                     type="number"
                     name="real_quantity"
                     label="Quantité compté"
+                    @keydown.enter="onSubmit"
                   />
                 </form>
               </div>

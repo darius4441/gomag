@@ -1,19 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useRouter } from "vue-router";
-
-import axios from "axios";
-import * as zod from "zod";
-import { toFormValidator } from "@vee-validate/zod";
-import { useForm, useFieldArray } from "vee-validate";
-import { useToast } from "vue-toast-notification";
 import { RefreshIcon, XIcon } from "@heroicons/vue/solid";
-
-import MyInput from "../../components/shared/forms/BaseInput.vue";
-import Card from "../../components/shared/card-component.vue";
-import MyButton from "../../components/shared/my-action.vue";
+import { toFormValidator } from "@vee-validate/zod";
+import axios from "axios";
+import { useFieldArray, useForm } from "vee-validate";
+import { onMounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import * as zod from "zod";
 import NestedArray from "../../components/operations/creation-item-form.vue";
+import Card from "../../components/shared/card-component.vue";
+import MyInput from "../../components/shared/forms/BaseInput.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
@@ -62,7 +60,7 @@ const validationSchema = toFormValidator(
           prod_type: zod.string({
             required_error: "obligatoire",
           }),
-          category: zod.nullable(zod.string()),
+          category: zod.nullable(zod.number()),
           code: zod.nullable(zod.string()),
           description: zod.nullable(zod.string()),
           uom: zod.string({

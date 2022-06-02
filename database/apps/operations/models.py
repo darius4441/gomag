@@ -51,6 +51,8 @@ class Operation(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        verbose_name = _("Opération")
+        verbose_name_plural = _("Opérations")
 
     def __str__(self):
         return f"Command of : {self.contact}"

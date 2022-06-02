@@ -1,6 +1,6 @@
 <script setup>
-import { useRouter } from "vue-router";
 import { ArrowSmDownIcon, CheckIcon, XIcon } from "@heroicons/vue/solid";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   what_data: String,
@@ -100,7 +100,7 @@ localStorage.removeItem("vueUseContact");
             {{ item.name }}
           </th>
           <td class="whitespace-nowrap py-2.5 text-left align-middle text-xs">
-            {{ item.category }}
+            {{ item.get_category }}
           </td>
           <td class="whitespace-nowrap py-2.5 text-center align-middle text-xs">
             {{ item.providers }}

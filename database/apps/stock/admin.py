@@ -1,8 +1,27 @@
 from django.contrib import admin
 from import_export import resources
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportActionModelAdmin
 
-from .models import Product
+from .models import ParentUOM, Product, ProductCategory, Uom
+
+
+class ProductCategoryResource(resources.ModelResource):
+    class Meta:
+        model = ProductCategory
+        fields = (
+            "id",
+            "name",
+            "parent",
+        )
+        export_order = (
+            "id",
+            "name",
+            "parent",
+        )
+
+
+class ProductCategoryAdmin(ImportExportActionModelAdmin):
+    resource_class = ProductCategoryResource
 
 
 class ProductResource(resources.ModelResource):
@@ -15,6 +34,7 @@ class ProductResource(resources.ModelResource):
             "code",
             "description",
             "uom",
+            "unit",
             "providers",
             "uom",
             "real_quantity",
@@ -32,6 +52,7 @@ class ProductResource(resources.ModelResource):
             "providers",
             "real_quantity",
             "uom",
+            "unit",
             "unit_cost",
             "unit_price",
             "alert_stock",
@@ -43,7 +64,7 @@ class ProductResource(resources.ModelResource):
         )
 
 
-class ProductAdmin(ImportExportModelAdmin):
+class ProductAdmin(ImportExportActionModelAdmin):
     resource_class = ProductResource
     list_display = (
         "name",
@@ -52,6 +73,7 @@ class ProductAdmin(ImportExportModelAdmin):
         "real_quantity",
         "unit_cost",
         "uom",
+        "unit",
         "created_at",
         "modified_at",
     )
@@ -65,14 +87,42 @@ class ProductAdmin(ImportExportModelAdmin):
                     "name",
                     "real_quantity",
                     "uom",
+                    "unit",
                     ("unit_cost", "unit_price"),
                 )
             },
         ),
-        ("Donnée de filtre", {"fields": ("category", "providers", "code")}),
+        (
+            "Donnée de filtre",
+            {"fields": ("category", "providers", "code")},
+        ),
         ("Suivie de stock", {"fields": ("alert_stock", "optimal_stock")}),
         ("Tracabilité", {"fields": ("created_by", "modified_by")}),
     )
 
 
+class CategoryUomRessource(resources.ModelResource):
+    class Meta:
+        model = ParentUOM
+        fields = (
+            "id",
+            "name",
+        )
+
+
+class UomInline(admin.TabularInline):
+    model = Uom
+    extra = 0
+    fields = ["name", "ratio", "rouding", "type", "uom_parent"]
+
+
+class CategoryUomAdmin(ImportExportActionModelAdmin):
+    resource_class = CategoryUomRessource
+    fields = ("name",)
+    inlines = [UomInline]
+    list_display = ("name",)
+
+
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ParentUOM, CategoryUomAdmin)
+admin.site.register(ProductCategory, ProductCategoryAdmin)

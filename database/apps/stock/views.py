@@ -1,12 +1,21 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
+from django.shortcuts import render
 from rest_framework import filters, viewsets
+from rest_framework.decorators import (
+    action,
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
-from .models import CategoryUOM, Inventory, Product, Uom
+from .models import Inventory, ParentUOM, Product, ProductCategory, Uom
 from .serializers import (
     CategoryUomSerializer,
     InventorySerializer,
+    ProductCategorySerializer,
     ProductSerializer,
     UomSerializer,
 )
@@ -22,12 +31,17 @@ class PosPagination(PageNumberPagination):
 
 class UomCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategoryUomSerializer
-    queryset = CategoryUOM.objects.all()
+    queryset = ParentUOM.objects.all()
 
 
 class UomViewSet(viewsets.ModelViewSet):
     serializer_class = UomSerializer
     queryset = Uom.objects.all()
+
+
+class ProductCategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductCategorySerializer
+    queryset = ProductCategory.objects.all()
 
 
 class AllProductViewSet(viewsets.ModelViewSet):
@@ -40,7 +54,7 @@ class POSViewSet(viewsets.ModelViewSet):
     pagination_class = PosPagination
     queryset = Product.objects.filter(isArchived=False).order_by("name")
     filter_backends = [filters.SearchFilter]
-    search_fields = ("code", "name", "category", "providers")
+    search_fields = ("code", "name", "category__name", "providers")
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -48,7 +62,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.filter(isArchived=False).order_by("name")
     pagination_class = ProductPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ("code", "name", "category", "providers")
+    search_fields = ("code", "name", "category__name", "providers")
+
+    @action(detail=False)
+    def all_products(self, request):
+        all_products = Product.objects.filter(isArchived=False).order_by(
+            "name"
+        )
+
+        serializer = self.get_serializer(all_products, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         serializer.save(

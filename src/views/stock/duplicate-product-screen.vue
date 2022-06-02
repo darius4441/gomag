@@ -1,17 +1,15 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useRouter } from "vue-router";
-
-import axios from "axios";
-import * as zod from "zod";
 import { toFormValidator } from "@vee-validate/zod";
+import axios from "axios";
 import { useForm } from "vee-validate";
+import { onMounted, onUnmounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
-
-import MyButton from "../../components/shared/my-action.vue";
-import MyInput from "../../components/shared/forms/BaseInput.vue";
+import * as zod from "zod";
 import Card from "../../components/shared/card-component.vue";
+import MyInput from "../../components/shared/forms/BaseInput.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
@@ -23,19 +21,7 @@ const duplicate_product = JSON.parse(
 );
 
 // Define vars / const
-const categories = ref([
-  { label: "Carrelage", value: "Carrelage" },
-  { label: "Divers", value: "Divers" },
-  { label: "Electricité", value: "Electricité" },
-  { label: "Etanchéité", value: "Etanchéité" },
-  { label: "Maçonnerie", value: "Maçonnerie" },
-  { label: "Menuiserie", value: "Menuiserie" },
-  { label: "Peinture", value: "Peinture" },
-  { label: "Plomberie", value: "Plomberie" },
-  { label: "Sanitaire", value: "Sanitaire" },
-  { label: "Serrure", value: "Serrure" },
-  { label: "Tuyauterie", value: "Tuyauterie" },
-]);
+const categories = ref([]);
 
 const uomList = ref([
   { label: "pcs", value: "pcs" },
@@ -43,6 +29,7 @@ const uomList = ref([
   { label: "kg", value: "kg" },
   { label: "barre", value: "barre" },
   { label: "pot", value: "pot" },
+  { label: "feuille", value: "feuille" },
   { label: "crt", value: "crt" },
   { label: "pqt", value: "pqt" },
   { label: "rlx", value: "rlx" },
@@ -56,13 +43,13 @@ const validationSchema = toFormValidator(
         required_error: "nom de l'article est obligatoire",
       })
       .min(3, { message: "nom de l'article doit avoir 3 charactère minimum" }),
-    category: zod.string().nullish(),
+    category: zod.number().nullish(),
     code: zod.string().nullish(),
     description: zod.string().nullish(),
     uom: zod.string({
       required_error: "unité de mesure est obligatoire",
     }),
-    provider: zod.string().nullish(),
+    providers: zod.string().nullish(),
     alert_stock: zod
       .number({
         required_error: "stock alerte est obligatoire",
@@ -109,7 +96,7 @@ const { handleSubmit, resetForm } = useForm({
     code: duplicate_product.code,
     description: duplicate_product.description,
     uom: duplicate_product.uom,
-    provider: duplicate_product.provider,
+    providers: duplicate_product.providers,
     alert_stock: parseInt(duplicate_product.alert_stock),
     optimal_stock: parseInt(duplicate_product.optimal_stock),
     unit_price: parseInt(duplicate_product.unit_price),
@@ -144,8 +131,32 @@ const onSubmit = handleSubmit(async (values) => {
   }
 }, onInvalidSubmit);
 
-onMounted(() => {
+async function getCategories() {
+  try {
+    await axios
+      .get("/api/v1/stock/categories")
+      .then((response) => {
+        categories.value = [];
+
+        for (let i = 0; i < response.data.length; i++) {
+          const cat = response.data[i];
+          categories.value.push({ label: cat.name, value: cat.id });
+        }
+      })
+      .catch((e) => {
+        throw e;
+      });
+  } catch (error) {
+    toast.error(error.message, {
+      position: "top-right",
+    });
+  }
+}
+
+onMounted(async () => {
   pageStore.updatePageName("Stock");
+
+  await getCategories();
 });
 
 onUnmounted(async () => {
@@ -187,7 +198,7 @@ onUnmounted(async () => {
                   :options="categories"
                 />
 
-                <MyInput type="text" name="provider" label="Fournisseur" />
+                <MyInput type="text" name="providers" label="Fournisseur" />
 
                 <MyInput type="text" name="code" label="Code" />
               </div>

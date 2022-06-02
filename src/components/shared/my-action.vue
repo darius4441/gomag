@@ -44,8 +44,8 @@ const props = defineProps({
     type="button"
     :class="[
       props.isOutlined == true
-        ? 'text-kPrimaryColor ring-1 ring-kPrimaryColor hover:ring-2 dark:text-kWhiteColor'
-        : 'bg-kPrimaryColor text-kWhiteColor ring-1 ring-kPrimaryColor hover:bg-kSecondaryColor',
+        ? 'text-kPrimaryColor ring-1 ring-kPrimaryColor hover:ring-2 dark:text-kWhiteColor dark:ring-kWhiteColor'
+        : 'bg-kPrimaryColor text-kWhiteColor ring-1 ring-kPrimaryColor hover:bg-kSecondaryColor dark:bg-kWhiteColor dark:text-kPrimaryColor',
       'mb-1 rounded px-4 py-2 text-xs font-bold uppercase  shadow outline-none transition-all duration-150 ease-linear hover:shadow-md focus:outline-none  sm:mr-2',
     ]"
   >

@@ -1,11 +1,18 @@
 from rest_framework import serializers
 
-from .models import CategoryUOM, Inventory, InventoryItem, Product, Uom
+from .models import (
+    Inventory,
+    InventoryItem,
+    ParentUOM,
+    Product,
+    ProductCategory,
+    Uom,
+)
 
 
 class CategoryUomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CategoryUOM
+        model = ParentUOM
         fields = "__all__"
 
 
@@ -18,6 +25,12 @@ class UomSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = "__all__"
+
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -27,6 +40,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "modified_at",
             "modified_by",
             "getUom",
+            "get_category",
         )
         fields = (
             "id",
@@ -38,7 +52,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "providers",
             "uom",
             "slug",
-            "getReplenish",
             "alert_stock",
             "optimal_stock",
             "real_quantity",
@@ -49,7 +62,9 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_by",
             "modified_at",
             "modified_by",
+            "getReplenish",
             "getUom",
+            "get_category",
         )
 
     def create(self, validated_data):

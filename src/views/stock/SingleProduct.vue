@@ -1,32 +1,32 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import { useTempStore } from "../../stores/temp";
-import { useToast } from "vue-toast-notification";
-import { useLocalStorage } from "@vueuse/core";
-import axios from "axios";
-import moment from "moment";
 import {
-  MenuButton,
-  MenuItem,
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
+  MenuButton,
+  MenuItem,
 } from "@headlessui/vue";
 import {
+  AdjustmentsIcon,
+  ArrowDownIcon,
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  CheckCircleIcon,
-  AdjustmentsIcon,
 } from "@heroicons/vue/solid";
-
-import InitialQty from "../../components/shared/modals/products/initial-qty.vue";
-import MyButton from "../../components/shared/my-action.vue";
+import { useLocalStorage } from "@vueuse/core";
+import axios from "axios";
+import moment from "moment";
+import { onMounted, ref } from "vue-demi";
+import { useRoute, useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
 import HeadInfo from "../../components/products/SingleProductTopInfo.vue";
 import Card from "../../components/shared/card-component.vue";
-import MyMenu from "../../components/shared/my-menu.vue";
 import BaseModal from "../../components/shared/modals/BaseModal.vue";
+import InitialQty from "../../components/shared/modals/products/initial-qty.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import MyMenu from "../../components/shared/my-menu.vue";
+import { useTempStore } from "../../stores/temp";
 
 //? declare composables
 const route = useRoute();
@@ -183,7 +183,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-row">
+  <div class="flex flex-col md:flex-row">
     <div class="basis-3/5">
       <div class="flex flex-col">
         <!-- Header -->
@@ -343,9 +343,7 @@ onMounted(async () => {
               <!-- left part -->
               <div class="flex w-full flex-col gap-y-3">
                 <div>
-                  <span for="category" class="mb-2 block text-sm font-medium">
-                    Type
-                  </span>
+                  <span class="mb-2 block text-sm font-medium"> Type </span>
 
                   <div
                     class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
@@ -354,20 +352,18 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div>
-                  <span for="category" class="mb-2 block text-sm font-medium">
+                  <span class="mb-2 block text-sm font-medium">
                     Categorie
                   </span>
                   <div
                     class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
                   >
-                    {{ product.category }}
+                    {{ product.get_category }}
                   </div>
                 </div>
 
                 <div>
-                  <span for="code" class="mb-2 block text-sm font-medium">
-                    Code
-                  </span>
+                  <span class="mb-2 block text-sm font-medium"> Code </span>
                   <div
                     class="block h-7 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
                   >
@@ -379,7 +375,7 @@ onMounted(async () => {
               <!-- right part -->
               <div class="flex w-full flex-col gap-y-2">
                 <div>
-                  <span for="provider" class="mb-2 block text-sm font-medium">
+                  <span class="mb-2 block text-sm font-medium">
                     Unité de mesure
                   </span>
                   <div
@@ -390,7 +386,7 @@ onMounted(async () => {
                 </div>
 
                 <div>
-                  <span for="provider" class="mb-2 block text-sm font-medium">
+                  <span class="mb-2 block text-sm font-medium">
                     Société / Fournisseur
                   </span>
                   <div
@@ -402,10 +398,7 @@ onMounted(async () => {
 
                 <div class="flex flex-row gap-x-6 rounded-lg">
                   <div class="block w-full py-1">
-                    <span
-                      for="ideal-stock"
-                      class="mb-2 block truncate text-sm font-medium"
-                    >
+                    <span class="mb-2 block truncate text-sm font-medium">
                       Stock alerte
                     </span>
                     <div
@@ -415,10 +408,7 @@ onMounted(async () => {
                     </div>
                   </div>
                   <div class="block w-full py-1">
-                    <span
-                      for="ideal-stock"
-                      class="mb-2 block truncate text-sm font-medium"
-                    >
+                    <span class="mb-2 block truncate text-sm font-medium">
                       Stock idéal
                     </span>
                     <div
@@ -433,9 +423,7 @@ onMounted(async () => {
 
             <!-- bottom part -->
             <div class="mb-3">
-              <span for="description" class="mb-2 block text-sm font-medium">
-                Description
-              </span>
+              <span class="mb-2 block text-sm font-medium"> Description </span>
               <div
                 class="block h-28 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
               >
@@ -460,7 +448,14 @@ onMounted(async () => {
             <DisclosureButton
               class="flex w-full justify-between rounded-lg bg-kPrimaryColor/30 px-4 py-2 text-left text-sm font-medium text-kPrimaryColor hover:bg-kPrimaryColor/50 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75"
             >
-              <span>{{ getFormattedTime(history.date) }}</span>
+              <div class="inline-flex">
+                <span>{{ getFormattedTime(history.date) }}</span>
+                <ArrowDownIcon
+                  v-if="history.m_type == 'in'"
+                  class="h-4 w-4 ml-2 text-emerald-700"
+                />
+              </div>
+
               <ChevronUpIcon
                 :class="open ? 'rotate-180 transform' : ''"
                 class="h-5 w-5 text-kPrimaryColor"

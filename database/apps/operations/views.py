@@ -13,7 +13,6 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from xhtml2pdf import pisa
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,6 +21,8 @@ from apps.stock.models import Product
 
 from .models import Item, Operation
 from .serializers import ItemSerializer, OperationSerializer
+
+# ? from xhtml2pdf import pisa
 
 
 class OperationPagination(PageNumberPagination):
@@ -33,6 +34,17 @@ class ItemViewSet(viewsets.ModelViewSet):
     queryset = Item.objects.all()
     filter_backends = [DjangoFilterBackend]
     search_fields = "article"
+
+    @action(detail=False, methods=["get"])
+    def items_to_be_counted(self, request):
+        products = (
+            Item.objects.filter(operation__state="draft")
+            .filter(quantity__gt=F("article__real_quantity"))
+            .order_by("article__name")
+        )
+
+        serializer = self.get_serializer(products, many=True)
+        return Response({"items_to_be_counted": serializer.data})
 
 
 class OperationViewSet(viewsets.ModelViewSet):
@@ -49,25 +61,28 @@ class OperationViewSet(viewsets.ModelViewSet):
         "items__article",
         "items__article__name",
     ]
-    # search_fields = (
-    #     "contact__id",
-    #     "contact__name",
-    #     "state",
-    #     "date",
-    #     "m_type",
-    #     "items__article__name",
-    # )
-
-    @action(detail=True, methods=["get"])
-    def traceability(self, request):
-        ops = self.get_object()
-        # print(ops)
-        recent_products = Operation.objects.all()
-
-        serializer = self.get_serializer(recent_products, many=True)
-        return Response(serializer.data)
 
     def get_queryset(self):
+        draft_operations = self.queryset.exclude(state="done")
+
+        # ? Automatically control operation's state
+        for ops in draft_operations:
+            items = Item.objects.filter(operation=ops.id)
+
+            out_stock_len = len(
+                items.filter(quantity__gt=F("article__real_quantity"))
+            )
+
+            if out_stock_len:
+                if ops.state != "draft":
+                    ops.state = "draft"
+                    ops.save()
+
+            else:
+                if ops.state != "pending":
+                    ops.state = "pending"
+                    ops.save()
+
         return self.queryset.filter(created_by=self.request.user)
 
     def perform_create(self, serializer):
@@ -147,7 +162,8 @@ class UndoneApiView(APIView):
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def generate_pdf(request, operation_id):
-    operation = get_object_or_404(
+    pass
+    """ TODO operation = get_object_or_404(
         Operation, pk=operation_id, created_by=request.user
     )
 
@@ -163,7 +179,7 @@ def generate_pdf(request, operation_id):
     if pisa_status.err:
         return HttpResponse("We had some errors <pre>" + html + "</pre>")
 
-    return response
+    return response """
 
 
 @api_view(["GET"])

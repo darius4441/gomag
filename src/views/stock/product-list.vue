@@ -1,17 +1,16 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue-demi";
-import { useRouter } from "vue-router";
-import { useTempStore } from "../../stores/temp";
-import { onLongPress } from "@vueuse/core";
-
-import axios from "axios";
+import { MenuButton, MenuItem } from "@headlessui/vue";
 import { ArrowSmLeftIcon, ArrowSmRightIcon } from "@heroicons/vue/solid";
-
-import MyButton from "../../components/shared/my-action.vue";
-import Card from "../../components/shared/card-component.vue";
-import Table from "../../components/shared/table-component.vue";
-
 import Multiselect from "@suadelabs/vue3-multiselect";
+import { onLongPress } from "@vueuse/core";
+import axios from "axios";
+import { computed, onMounted, ref, watch } from "vue-demi";
+import { useRouter } from "vue-router";
+import Card from "../../components/shared/card-component.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import MyMenu from "../../components/shared/my-menu.vue";
+import Table from "../../components/shared/table-component.vue";
+import { useTempStore } from "../../stores/temp";
 
 // ? Define composables
 const pageStore = useTempStore();
@@ -21,7 +20,7 @@ const htmlRefHook = ref(null);
 
 // ? Define vars - consts
 const products = ref([]);
-const selected = ref("");
+const search = ref("");
 const options = ref([]);
 const currentPage = ref(1);
 const label = [
@@ -59,11 +58,11 @@ function addTag(newTag) {
     id: newTag.substring(0, 2) + Math.floor(Math.random() * 10000),
     name: newTag,
   };
-  selected.value = tag;
+  search.value = tag;
   options.value.push(tag);
 }
 
-watch(selected, () => {
+watch(search, () => {
   getProducts();
 });
 
@@ -74,7 +73,7 @@ async function getProducts() {
   await axios
     .get(
       `/api/v1/stock/products/?page=${currentPage.value}&search=${
-        selected.value.name ?? ""
+        search.value.name ?? ""
       }`
     )
     .then((response) => {
@@ -146,8 +145,81 @@ onMounted(async () => {
             </span>
           </h1>
 
+          <MyMenu
+            menuItemsWidthClass="left-0 top-8"
+            menuItemsColorClass="bg-kPrimaryColor divide-gray-100"
+            class="w-64 text-sm font-light text-white"
+          >
+            <template #menu_button>
+              <MenuButton>
+                <MyButton label="Filtrer" />
+              </MenuButton>
+            </template>
+
+            <template #menu_content>
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                Produit fini
+              </MenuItem>
+
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                Produit en alerte
+              </MenuItem>
+
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                Non suivie
+              </MenuItem>
+
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                Prix non traité
+              </MenuItem>
+
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                Fournisseur
+                <ul class="hidden">
+                  <li>SODISMADCI</li>
+                  <li>HASSAN ATTIE</li>
+                </ul>
+              </MenuItem>
+
+              <MenuItem
+                as="div"
+                class="cursor-pointer truncate py-1 hover:font-bold"
+              >
+                <span>Catégorie</span>
+                <ul class="hidden">
+                  <li>Carrelage</li>
+                  <li>Divers</li>
+                  <li>Electricité</li>
+                  <li>Etanchéité</li>
+                  <li>Maçonnerie</li>
+                  <li>Menuiserie</li>
+                  <li>Peinture</li>
+                  <li>Plomberie</li>
+                  <li>Sanitaire</li>
+                  <li>Serrure</li>
+                  <li>Tuyauterie</li>
+                </ul>
+              </MenuItem>
+            </template>
+          </MyMenu>
+
           <multiselect
-            v-model="selected"
+            v-model="search"
             :options="options"
             :custom-label="customLabel"
             :taggable="true"
