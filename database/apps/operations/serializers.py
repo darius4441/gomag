@@ -7,12 +7,13 @@ from .models import Item, Operation
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        read_only_fields = ("operation",)
+        read_only_fields = ("operation", "old_qty")
         fields = (
             "id",
             "article",
             "quantity",
             "unit",
+            "old_qty",
             "get_article_name",
             "get_article_available_qty",
         )

@@ -65,7 +65,7 @@ const sidebarItem = ref([
 <template>
   <!-- Navbar -->
   <nav
-    class="mb-6 flex w-full items-center p-4 shadow-md dark:shadow-kPrimaryColor sm:flex-row sm:flex-nowrap sm:justify-start"
+    class="mb-6 flex w-full items-center p-4 shadow-md dark:shadow-kPrimaryColor print:hidden sm:flex-row sm:flex-nowrap sm:justify-start"
   >
     <div
       class="mx-auto flex w-full flex-wrap items-center justify-between px-4 md:flex-nowrap md:px-10"

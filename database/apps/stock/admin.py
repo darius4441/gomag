@@ -77,8 +77,8 @@ class ProductAdmin(ImportExportActionModelAdmin):
         "created_at",
         "modified_at",
     )
-    list_filter = ("category", "providers")
-    search_fields = ("code", "name", "category", "providers")
+    list_filter = ("category", "providers", "uom")
+    search_fields = ("code", "name", "providers")
     fieldsets = (
         (
             None,
@@ -89,6 +89,7 @@ class ProductAdmin(ImportExportActionModelAdmin):
                     "uom",
                     "unit",
                     ("unit_cost", "unit_price"),
+                    ("semi_wholesale_price", "wholesale_price"),
                 )
             },
         ),

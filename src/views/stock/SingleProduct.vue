@@ -449,11 +449,15 @@ onMounted(async () => {
               class="flex w-full justify-between rounded-lg bg-kPrimaryColor/30 px-4 py-2 text-left text-sm font-medium text-kPrimaryColor hover:bg-kPrimaryColor/50 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75"
             >
               <div class="inline-flex">
-                <span>{{ getFormattedTime(history.date) }}</span>
+                <span>
+                  {{ getFormattedTime(history.date) }}
+                </span>
                 <ArrowDownIcon
                   v-if="history.m_type == 'in'"
-                  class="h-4 w-4 ml-2 text-emerald-700"
+                  class="ml-2 h-4 w-4 text-emerald-700"
                 />
+
+                <span class="ml-2">- {{ history.getContactName }}</span>
               </div>
 
               <ChevronUpIcon
@@ -474,9 +478,16 @@ onMounted(async () => {
               >
                 <CheckCircleIcon class="mr-2 h-3 w-3 text-emerald-600" />
                 <span class="truncate">
-                  <span class="font-bold"
-                    >{{ parseFloat(item.quantity) }} {{ item.unit }}</span
-                  >
+                  <span class="font-bold">
+                    {{
+                      parseFloat(item.old_qty ?? item.get_article_available_qty)
+                    }}
+                  </span>
+                  à
+                  <span class="font-bold">
+                    {{ parseFloat(item.get_article_available_qty) }}
+                    {{ item.unit }}
+                  </span>
                   de
                   {{ item.get_article_name }}
                 </span>

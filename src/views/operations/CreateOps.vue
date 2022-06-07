@@ -98,6 +98,7 @@ const validationSchema = toFormValidator(
             invalid_type_error: "la quantité doit etre un nombre réel positif",
           })
           .gte(1),
+        cost: zod.number().nullish(),
         // unit: zod.string(),
       })
       .array()
@@ -288,6 +289,12 @@ onMounted(async () => {
                         class="sticky top-0 w-2/12 whitespace-nowrap bg-kWhiteColor p-3 align-middle text-xs font-semibold dark:bg-kDarkColor"
                       >
                         Unité
+                      </th>
+                      <th
+                        v-if="m_type == 'in'"
+                        class="sticky top-0 w-2/12 whitespace-nowrap bg-kWhiteColor p-3 text-right align-middle text-xs font-semibold dark:bg-kDarkColor"
+                      >
+                        Cout d'achat
                       </th>
                       <th
                         class="sticky top-0 w-1/12 whitespace-nowrap bg-kWhiteColor p-3 align-middle text-xs font-semibold dark:bg-kDarkColor"

@@ -70,6 +70,8 @@ class Item(models.Model):
     )
     quantity = models.FloatField(_("quantity"), default=1)
     unit = models.CharField(_("unit"), max_length=30)
+    old_qty = models.FloatField(_("ancienne quantité"), blank=True, null=True)
+    cost = models.FloatField(_("cout d'achat"), blank=True, null=True)
 
     def __str__(self):
         return f"{self.article.name} item of operation#{self.operation.operation_number}"

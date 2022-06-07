@@ -22,7 +22,7 @@ from .serializers import (
 
 
 class ProductPagination(PageNumberPagination):
-    page_size = 17
+    page_size = 50
 
 
 class PosPagination(PageNumberPagination):

@@ -174,6 +174,8 @@ class Product(models.Model):
     real_quantity = models.FloatField(_("stock réel"), default=0)
     virtual_quantity = models.FloatField(_("stock virtuel"), default=0)
     unit_price = models.FloatField(_("prix de vente"), default=1)
+    semi_wholesale_price = models.FloatField(_("prix de demi-gros"), default=1)
+    wholesale_price = models.FloatField(_("prix de gros"), default=1)
     unit_cost = models.FloatField(_("cout d'achat"), default=1)
     alert_stock = models.IntegerField(_("qté alerte"), default=0)
     optimal_stock = models.IntegerField(_("qté idéale"), default=0)

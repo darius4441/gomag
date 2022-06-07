@@ -199,7 +199,7 @@ localStorage.removeItem("vueUseContact");
             v-if="props.state != 'done'"
             class="whitespace-nowrap py-1 text-right align-middle text-xs"
           >
-            {{ item.get_article_available_qty }}
+            {{ parseFloat(item.get_article_available_qty) }}
           </td>
         </tr>
       </template>

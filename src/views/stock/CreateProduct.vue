@@ -1,13 +1,10 @@
 <script setup>
-import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
-import { useForm } from "vee-validate";
+import { reset } from "@formkit/core";
 import { onMounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
-import * as zod from "zod";
 import Card from "../../components/shared/card-component.vue";
-import MyInput from "../../components/shared/forms/BaseInput.vue";
 import MyButton from "../../components/shared/my-action.vue";
 import { useTempStore } from "../../stores/temp";
 
@@ -17,6 +14,8 @@ const router = useRouter();
 const toast = useToast();
 
 // Define vars / const
+const productFormDataRef = ref(null);
+const productFormData = ref({});
 const categories = ref([]);
 
 const uomList = ref([
@@ -34,77 +33,18 @@ const uomList = ref([
   { label: "sac", value: "sac" },
 ]);
 
-const validationSchema = toFormValidator(
-  zod.object({
-    name: zod
-      .string({
-        required_error: "nom de l'article est obligatoire",
-      })
-      .min(3, { message: "nom de l'article doit avoir 3 charactère minimum" }),
-    category: zod.number().nullish(),
-    code: zod.string().nullish(),
-    description: zod.string().nullish(),
-    uom: zod.string({
-      required_error: "unité de mesure est obligatoire",
-    }),
-    providers: zod.string().nullish(),
-    alert_stock: zod
-      .number({
-        required_error: "stock alerte est obligatoire",
-        invalid_type_error: "stock alerte doit etre un nombre",
-      })
-      .gte(0, { message: "stock alerte doit avoir minimum 0" }),
-    optimal_stock: zod
-      .number({
-        required_error: "stock idéal est obligatoire",
-        invalid_type_error: "stock idéal doit etre un nombre",
-      })
-      .gte(0, { message: "stock idéal doit avoir minimum 0" }),
-    unit_price: zod
-      .number({
-        required_error: "prix de vente est obligatoire",
-        invalid_type_error: "prix de vente doit etre un nombre",
-      })
-      .gte(0, { message: "prix de vente doit avoir minimum 0" }),
-    unit_cost: zod
-      .number({
-        required_error: "cout d'achat est obligatoire",
-        invalid_type_error: "cout d'achat doit etre un nombre",
-      })
-      .gte(0, { message: "cout d'achat doit avoir minimum 0" }),
-  })
-);
+function submitForm() {
+  const node = productFormDataRef.value.node;
 
-function onInvalidSubmit({ errors }) {
-  Object.entries(errors).forEach((item) => {
-    toast.error("Le champ " + item[1], {
-      position: "top-right",
-    });
-  });
+  node.submit();
 }
 
-// Create a form context with the validation schema
-const { handleSubmit, resetForm } = useForm({
-  validationSchema: validationSchema,
-
-  initialValues: {
-    prod_type: "storable",
-    category: 1,
-    uom: uomList.value[0].value,
-    alert_stock: 0,
-    optimal_stock: 0,
-    unit_price: 1,
-    unit_cost: 1,
-  },
-});
-
-// auto call by node when submitForm was called
-const onSubmit = handleSubmit(async (values) => {
+async function submitHandler() {
   try {
     await axios
-      .post("/api/v1/stock/products/", values)
+      .post("/api/v1/stock/products/", productFormData.value)
       .then((res) => {
-        resetForm();
+        reset("productFormData");
 
         toast.success("Article créer avec succes", {
           position: "top-right",
@@ -123,7 +63,7 @@ const onSubmit = handleSubmit(async (values) => {
       position: "top-right",
     });
   }
-}, onInvalidSubmit);
+}
 
 async function getCategories() {
   try {
@@ -159,7 +99,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="mx-auto w-full px-4">
       <div class="flex w-full flex-row items-center">
-        <MyButton label="Sauver" @click="onSubmit" />
+        <MyButton label="Sauver" @click="submitForm" />
         <MyButton label="Annuler" to="Products" :isOutlined="true" />
       </div>
     </div>
@@ -170,63 +110,84 @@ onMounted(async () => {
       </template>
 
       <template #content>
-        <form class="py-6">
-          <div class="flex flex-col gap-y-4">
-            <MyInput type="text" name="name" label="Nom de l'article" />
+        <FormKit
+          type="form"
+          ref="productFormDataRef"
+          v-model="productFormData"
+          :actions="false"
+          @submit="submitHandler"
+          class="py-3"
+        >
+          <div class="flex flex-col">
+            <FormKit
+              type="text"
+              name="name"
+              validation="required|length:3"
+              label="Nom de l'article"
+            />
             <div class="flex flex-row gap-x-4">
-              <div class="flex w-full flex-col gap-y-4">
-                <MyInput
+              <div class="flex w-full flex-col">
+                <FormKit
                   type="select"
                   name="category"
                   label="Catégorie"
                   :options="categories"
                 />
 
-                <MyInput type="text" name="providers" label="Fournisseur" />
+                <FormKit type="text" name="providers" label="Fournisseur" />
 
-                <MyInput type="text" name="code" label="Code" />
+                <FormKit type="text" name="code" label="Code" />
               </div>
 
-              <div class="flex w-full flex-col gap-y-4">
-                <MyInput
+              <div class="flex w-full flex-col">
+                <FormKit
                   type="select"
                   name="uom"
                   label="Unité de mesure"
                   :options="uomList"
+                  validation="required"
                 />
                 <div class="flex flex-row gap-x-4">
-                  <MyInput
+                  <FormKit
                     type="number"
                     name="unit_cost"
                     label="Cout d'achat"
+                    value="1"
+                    validation="required|number|min:0"
                   />
 
-                  <MyInput
+                  <FormKit
                     type="number"
                     name="unit_price"
                     label="Prix de vente"
+                    value="1"
+                    validation="required|number|min:0"
                   />
                 </div>
 
                 <div class="flex flex-row gap-x-4">
-                  <MyInput
+                  <FormKit
                     type="number"
                     name="alert_stock"
                     label="Stock alerte"
+                    value="1"
+                    validation="required|number|min:0"
                   />
 
-                  <MyInput
+                  <FormKit
                     type="number"
                     name="optimal_stock"
                     label="Stock idéal"
+                    value="1"
+                    validation="required|number|min:0"
                   />
                 </div>
               </div>
             </div>
 
-            <MyInput type="textarea" name="description" label="Description" />
+            <FormKit type="textarea" name="description" label="Description" />
           </div>
-        </form>
+        </FormKit>
       </template>
     </Card>
   </div>

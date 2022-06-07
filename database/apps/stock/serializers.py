@@ -57,6 +57,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "real_quantity",
             "virtual_quantity",
             "unit_price",
+            "semi_wholesale_price",
+            "wholesale_price",
             "unit_cost",
             "created_at",
             "created_by",

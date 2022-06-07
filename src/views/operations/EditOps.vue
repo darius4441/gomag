@@ -80,7 +80,7 @@ const validationSchema = toFormValidator(
           prod_type: zod.string({
             required_error: "obligatoire",
           }),
-          category: zod.nullable(zod.string()),
+          category: zod.nullable(zod.number()),
           code: zod.nullable(zod.string()),
           description: zod.nullable(zod.string()),
           uom: zod.string({

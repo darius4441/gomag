@@ -19,7 +19,7 @@ export default {
             </div>
           </div>
         </div>
-        <div class="block w-full h-[70vh] overflow-x-auto px-4">
+        <div class="block h-[70vh] w-full overflow-x-auto px-4 print:h-auto">
           <slot name="content"></slot>
         </div>
 

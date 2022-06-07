@@ -40,7 +40,6 @@ function addItemHandler() {
   order.value.push(addItemFormData.value);
 
   reset("addItemFormID");
-  // console.log(JSON.stringify(addItemFormData.value, null, 2));
 }
 
 async function getProducts() {
@@ -69,7 +68,7 @@ onMounted(async () => {
 <template>
   <div class="flex h-[86vh] flex-row gap-x-4 p-4">
     <!-- add item area -->
-    <div class="basis-3/4 relative">
+    <div class="relative basis-3/4">
       <div class="m-4 flex flex-wrap gap-4">
         <button
           v-for="(item, idx) in products"
@@ -104,7 +103,7 @@ onMounted(async () => {
       </div>
 
       <div
-        class="flex absolute bottom-0 flex-col items-center py-4 shadow shadow-indigo-400"
+        class="absolute bottom-0 flex flex-col items-center py-4 shadow shadow-indigo-400"
       >
         <FormKit
           ref="addItemFormRef"
@@ -147,7 +146,13 @@ onMounted(async () => {
               />
             </div>
 
-            <FormKit type="button" @click="addItem" label="Ajouter" />
+            <MyButton
+              type="button"
+              @click="addItem"
+              :isOutlined="true"
+              label="Ajouter"
+              class="ml-4"
+            />
           </div>
         </FormKit>
 
@@ -155,8 +160,8 @@ onMounted(async () => {
           class="flex w-3/5 justify-center rounded-b-lg bg-kPrimaryColor/50 pt-4 shadow-inner shadow-indigo-300"
         >
           <FormKit
-            v-model="search"
             type="search"
+            v-model="search"
             placeholder="Trouver ..."
             @input="getProducts()"
           />
@@ -165,9 +170,9 @@ onMounted(async () => {
     </div>
 
     <!-- order area -->
-    <div class="basis-1/4 relative bg-kPrimaryColor text-kWhiteColor">
-      <div class="bg-kWhiteColor/20 mb-1 h-12">
-        <h1 class="text-lg font-bold text-center">Votre panier</h1>
+    <div class="relative basis-1/4 bg-kPrimaryColor text-kWhiteColor">
+      <div class="mb-1 h-12 bg-kWhiteColor/20">
+        <h1 class="text-center text-lg font-bold">Votre panier</h1>
       </div>
 
       <div v-if="order.length" class="w-full px-4">
@@ -184,8 +189,8 @@ onMounted(async () => {
                   class="rounded-md bg-kPrimaryColor/90 px-4 py-2 hover:bg-kPrimaryColor/75"
                 >
                   <div class="flex justify-between gap-x-2">
-                    <span class="truncate w-2/3">{{ item.article }}</span>
-                    <span class="truncate text-right w-1/3"
+                    <span class="w-2/3 truncate">{{ item.article }}</span>
+                    <span class="w-1/3 truncate text-right"
                       >{{ item.quantity }} x
                       {{ item.unit_price.toLocaleString() }}F
                     </span>
@@ -207,7 +212,7 @@ onMounted(async () => {
 
       <div
         v-if="order.length"
-        class="bg-kWhiteColor/20 absolute bottom-0 mt-1 px-4"
+        class="absolute bottom-0 mt-1 bg-kWhiteColor/20 px-4"
       >
         <div class="grid grid-cols-2">
           <div class="mb-3">Sous total</div>
@@ -219,7 +224,7 @@ onMounted(async () => {
               type="text"
               v-model="discount"
               name="discount"
-              class="bg-white/10 self-end border-white w-full text-right border-b"
+              class="w-full self-end border-b border-white bg-white/10 text-right"
             />
           </div>
 

@@ -1,253 +1,517 @@
 <script setup>
-import { ref, computed, onMounted } from "vue-demi";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
-  TransitionRoot,
-} from "@headlessui/vue";
-import { CheckIcon, SelectorIcon, XIcon } from "@heroicons/vue/solid";
-import { toFormValidator } from "@vee-validate/zod";
-import { useField, useFieldArray, useForm } from "vee-validate";
-import { useTempStore } from "../stores/temp";
-import { useProductStore } from "../stores/product";
-import { useToast } from "vue-toast-notification";
-import * as zod from "zod";
-const pageStore = useTempStore();
+import { ref } from "vue-demi";
+import { token } from "@formkit/utils";
+import { getNode, createMessage } from "@formkit/core";
+import { createInput } from "@formkit/vue";
+import MyCombobox from "../components/shared/forms/BaseFormKitInput.vue";
+import MyCombobox2 from "../components/shared/forms/FormKitExample.vue";
 
-const toast = useToast();
-const productStrore = useProductStore();
-const products = computed(() => productStrore.products);
+const combobox = createInput(MyCombobox, { props: ["options"] });
+const combobox2 = createInput(MyCombobox2);
 
-let query = ref("");
+const products = ref([
+  {
+    id: 353,
+    name: "CHAMPION 4KG JAUNE SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-jaune-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 6,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.398252Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:12:08.226502Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 348,
+    name: "CHAMPION 4KG MARRON CLAIR SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-marron-clair-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 90,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.369595Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:12:08.257177Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 347,
+    name: "CHAMPION 4KG MARRON FONCE SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-marron-fonce-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 49,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.364811Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:12:08.265970Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 354,
+    name: "CHAMPION 4KG NOIR SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-noir-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 3,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.402869Z",
+    created_by: 1,
+    modified_at: "2022-06-01T17:56:53.029731Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 350,
+    name: "CHAMPION 4KG ROUGE SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-rouge-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 34,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.383443Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:12:08.246049Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 352,
+    name: "CHAMPION 4KG VERT SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-4kg-vert-sippec",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 0,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-17T17:57:58.393254Z",
+    created_by: 1,
+    modified_at: "2022-06-01T17:56:53.105186Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 289,
+    name: "CHAMPION 5KG SIPPEC",
+    prod_type: "storable",
+    category: 4,
+    code: null,
+    description: null,
+    providers: "SIPPEC",
+    uom: "pot",
+    slug: "champion-5kg-sippec",
+    alert_stock: 90,
+    optimal_stock: 300,
+    real_quantity: 387,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 2500,
+    created_at: "2022-05-14T14:06:48.040985Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:12:08.301169Z",
+    modified_by: 1,
+    getReplenish: -87,
+    getUom: "pot",
+    get_category: "Peinture",
+  },
+  {
+    id: 303,
+    name: "CHAPE 40",
+    prod_type: "storable",
+    category: 7,
+    code: null,
+    description: null,
+    providers: null,
+    uom: "rlx",
+    slug: "chape-40",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 17,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-16T18:04:12.259645Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:09:30.442180Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "rlx",
+    get_category: "Etanchéité",
+  },
+  {
+    id: 324,
+    name: "CHAUSSURE SECURITE 40 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH08S1P",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-40-ingco",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 7,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.239020Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.254756Z",
+    modified_by: 1,
+    getReplenish: 17,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 325,
+    name: "CHAUSSURE SECURITE 41 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH08S1P",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-41-ingco",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 3,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.244614Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.251002Z",
+    modified_by: 1,
+    getReplenish: 21,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 337,
+    name: "CHAUSSURE SECURITE 42 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH04SB",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-42-ingco",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 7,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.311718Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.218556Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 323,
+    name: "CHAUSSURE SECURITE 43 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH04SB",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-43-ingco",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 5,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.229537Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.259648Z",
+    modified_by: 1,
+    getReplenish: 19,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 326,
+    name: "CHAUSSURE SECURITE 43 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH08S1P",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-43-ingco-328412",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 6,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.252670Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.245967Z",
+    modified_by: 1,
+    getReplenish: 18,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 327,
+    name: "CHAUSSURE SECURITE 44 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH08S1P",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-44-ingco",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 0,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.257813Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.242343Z",
+    modified_by: 1,
+    getReplenish: 24,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 328,
+    name: "CHAUSSURE SECURITE 45 INGCO",
+    prod_type: "storable",
+    category: 2,
+    code: "SSH08S1P",
+    description: null,
+    providers: "INGCO",
+    uom: "paire",
+    slug: "chaussure-securite-45-ingco",
+    alert_stock: 12,
+    optimal_stock: 24,
+    real_quantity: 3,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 1,
+    created_at: "2022-05-17T17:57:58.262472Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:21:07.238713Z",
+    modified_by: 1,
+    getReplenish: 21,
+    getUom: "paire",
+    get_category: "Divers",
+  },
+  {
+    id: 91,
+    name: "CIMENT BLANC 25KG",
+    prod_type: "storable",
+    category: 14,
+    code: null,
+    description: null,
+    providers: null,
+    uom: "sac",
+    slug: "ciment-blanc-25kg",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 40,
+    virtual_quantity: 0,
+    unit_price: 1,
+    unit_cost: 7000,
+    created_at: "2022-05-07T17:00:19Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:17:25.602128Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "sac",
+    get_category: "Carrelage",
+  },
+  {
+    id: 57,
+    name: "CIMENT BLANC 50KG",
+    prod_type: "storable",
+    category: 14,
+    code: null,
+    description: null,
+    providers: "SODISMADCI SUCCURSALE 6",
+    uom: "sac",
+    slug: "ciment-blanc",
+    alert_stock: 0,
+    optimal_stock: 0,
+    real_quantity: 1,
+    virtual_quantity: 0,
+    unit_price: 0,
+    unit_cost: 15000,
+    created_at: "2022-05-06T17:35:29Z",
+    created_by: 1,
+    modified_at: "2022-06-01T15:17:25.622928Z",
+    modified_by: 1,
+    getReplenish: 0,
+    getUom: "sac",
+    get_category: "Carrelage",
+  },
+]);
 
-let filteredPeople = computed(() =>
-  query.value === ""
-    ? products.value.slice(0, 17)
-    : products.value
-        .filter((item) =>
-          item.name
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .includes(query.value.toLowerCase().replace(/\s+/g, ""))
-        )
-        .slice(0, 17)
-);
+const initial = {
+  items: [
+    Object.defineProperty({}, "key", {
+      value: token(),
+    }),
+  ],
+};
 
-const validationSchema = toFormValidator(
-  zod.object({
-    contact: zod
-      .string({
-        required_error: "contact est obligatoire",
+async function addItem() {
+  const group = getNode("myGroup");
+  const form = getNode("myForm");
+  group.walk((child) =>
+    child.store.set(
+      createMessage({
+        key: "submitted",
+        value: true,
+        visible: false,
       })
-      .min(3, { message: "contact doit avoir 3 charactère minimum" }),
-    items: zod
-      .object({
-        article: zod.object({
-          id: zod.number(),
-          name: zod.string({
-            required_error: "obligatoire",
-          }),
-          prod_type: zod.string({
-            required_error: "obligatoire",
-          }),
-          category: zod.nullable(zod.string()),
-          code: zod.nullable(zod.string()),
-          description: zod.nullable(zod.string()),
-          uom: zod.string({
-            required_error: "obligatoire",
-          }),
-          alert_stock: zod.number(),
-          optimal_stock: zod.number(),
-          real_quantity: zod.string({
-            required_error: "obligatoire",
-          }),
-          virtual_quantity: zod.string({
-            required_error: "obligatoire",
-          }),
-          unit_price: zod.string({
-            required_error: "obligatoire",
-          }),
-          unit_cost: zod.string({
-            required_error: "obligatoire",
-          }),
-          created_at: zod.string({
-            required_error: "obligatoire",
-          }),
-          created_by: zod.number(),
-          modified_at: zod.string({
-            required_error: "obligatoire",
-          }),
-          modified_by: zod.number(),
-          getUom: zod.string({
-            required_error: "obligatoire",
-          }),
-        }),
-        quantity: zod
-          .number({
-            required_error: "champ obligatoire",
-            invalid_type_error: "la quantité doit etre un nombre réel positif",
-          })
-          .gte(1),
-        unit: zod.string(),
-      })
-      .array()
-      .nonempty({
-        message: "Can't be empty!",
-      }),
-  })
-);
-
-// Create a form context with the validation schema
-const { handleSubmit } = useForm({
-  validationSchema: validationSchema,
-});
-
-const { value } = useField("contact");
-const { remove, push, fields } = useFieldArray("items");
-
-function addItem() {
-  push({ article: {}, quantity: 1, unit: "pcs" });
+    )
+  );
+  await group.settled;
+  if (!group.ledger.value("blocking")) {
+    const table = form.at("items");
+    const row = {};
+    group.each((child) => {
+      row[child.name] = child.value;
+    });
+    table.input(table.value.concat([row]));
+    group.reset();
+  }
 }
-function removeItem(id) {
-  remove(id);
-}
-
-const onSubmit = handleSubmit((values) => {
-  toast.info(JSON.stringify(values, null, 2));
-});
-onMounted(() => {
-  pageStore.updatePageName("Ecran de test");
-});
 </script>
 
 <template>
-  <div>
-    <form>
-      <div>
-        <input
-          type="text"
-          v-model="value"
-          placeholder="Contact"
-          class="bg-kPrimaryColor/25"
-        />
-      </div>
-      <div
-        v-for="(item, idx) in fields"
-        :key="item.key"
-        class="flex flex-row items-center gap-x-4 space-y-4"
-      >
-        <Combobox :v-model="`items[${idx}].article`">
-          <div class="relative mt-1">
-            <div
-              class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
-            >
-              <ComboboxInput
-                class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                :displayValue="
-                  (item) => {
-                    return item ? item.name : 'Veillez choisir un produit';
-                  }
-                "
-                @change="query = $event.target.value"
-              />
-              <ComboboxButton
-                class="absolute inset-y-0 right-0 flex items-center pr-2"
-              >
-                <SelectorIcon
-                  class="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </ComboboxButton>
-            </div>
-            <TransitionRoot
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-              @after-leave="query = ''"
-            >
-              <ComboboxOptions
-                class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-              >
-                <div
-                  v-if="filteredPeople.length === 0 && query !== ''"
-                  class="relative cursor-default select-none py-2 px-4 text-gray-700"
-                >
-                  Nothing found.
-                </div>
+  <FormKit
+    type="form"
+    id="myForm"
+    :value="initial"
+    #default="{ value: formValues }"
+  >
+    <FormKit type="list" name="items" #default="{ value: rows }">
+      <FormKit v-for="row in rows" :key="row.key" type="group">
+        <div class="flex gap-x-4">
+          <!-- <FormKit
+            :type="combobox"
+            name="article"
+            label="Article"
+            :options="products"
+            validation="required"
+            validation-visibility="submit"
+          /> -->
 
-                <ComboboxOption
-                  v-for="person in filteredPeople"
-                  as="template"
-                  :key="person.id"
-                  :value="person"
-                  v-slot="{ selected, active }"
-                >
-                  <li
-                    class="relative cursor-default select-none py-2 pl-10 pr-4"
-                    :class="{
-                      'bg-teal-600 text-white': active,
-                      'text-gray-900': !active,
-                    }"
-                  >
-                    <span
-                      class="block truncate"
-                      :class="{
-                        'font-medium': selected,
-                        'font-normal': !selected,
-                      }"
-                    >
-                      {{ person.name }}
-                    </span>
-                    <span
-                      v-if="selected"
-                      class="absolute inset-y-0 left-0 flex items-center pl-3"
-                      :class="{
-                        'text-white': active,
-                        'text-teal-600': !active,
-                      }"
-                    >
-                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                    </span>
-                  </li>
-                </ComboboxOption>
-              </ComboboxOptions>
-            </TransitionRoot>
-          </div>
-        </Combobox>
-        <input
-          type="number"
-          :v-model="`items[${idx}].quantity`"
-          placeholder="Qté"
-          class="bg-kPrimaryColor/25"
-        />
-        <input
-          type="text"
-          :v-model="`items[${idx}].unit`"
-          placeholder="uom"
-          class="bg-kPrimaryColor/25"
-        />
-        <div
-          @click="removeItem"
-          class="cursor-pointer rounded-full text-red-600 hover:bg-red-600 hover:text-white"
-        >
-          <XIcon
-            class="h-5 w-5 cursor-pointer rounded-full text-red-600 hover:bg-red-600 hover:text-white"
+          <FormKit
+            :type="combobox2"
+            name="article"
+            label="Article"
+            :options="products"
+            validation="required"
+            validation-visibility="submit"
+          />
+
+          <FormKit
+            type="number"
+            name="quantity"
+            label="Quantité"
+            validation="required"
+            validation-visibility="submit"
+          />
+
+          <FormKit
+            type="text"
+            name="uom"
+            label="Unité"
+            validation="required"
+            validation-visibility="submit"
+          />
+
+          <FormKit
+            type="number"
+            name="unit_cost"
+            label="Prix unitaire"
+            validation="required"
+            validation-visibility="submit"
           />
         </div>
-      </div>
-    </form>
+      </FormKit>
+    </FormKit>
 
-    <div class="flex flex-row items-center justify-between">
-      <button
-        @click="onSubmit"
-        class="mt-64 rounded-lg bg-blue-600 px-3 py-2 text-white"
-      >
-        Submit
-      </button>
-      <button @click="addItem" class="mt-64">+ item</button>
-    </div>
-  </div>
+    <FormKit type="group" id="myGroup" :ignore="true">
+      <FormKit type="button" label="Add row" @click="addItem" />
+    </FormKit>
+
+    <pre>{{ formValues }}</pre>
+  </FormKit>
 </template>

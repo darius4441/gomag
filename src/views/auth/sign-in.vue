@@ -1,16 +1,13 @@
 <script setup>
-import { useRouter, RouterLink } from "vue-router";
+import { ref } from "vue-demi";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { useProductStore } from "../../stores/product";
 
 import axios from "axios";
-import * as zod from "zod";
 import { AcademicCapIcon } from "@heroicons/vue/outline";
-import { useForm } from "vee-validate";
-import { toFormValidator } from "@vee-validate/zod";
 import { useToast } from "vue-toast-notification";
 
-import MyInput from "../../components/shared/forms/BaseInput.vue";
 import MyButton from "../../components/shared/my-action.vue";
 
 // access to store and router in composition mode
@@ -18,28 +15,19 @@ const route = useRouter();
 const storeAuth = useAuthStore();
 const toast = useToast();
 const storeProduct = useProductStore();
+const loginFormDataRef = ref(null);
+const loginFormData = ref({});
 
-const validationSchema = toFormValidator(
-  zod.object({
-    email: zod
-      .string()
-      .nonempty("Champ requis")
-      .email({ message: "Email non valide" }),
-    password: zod
-      .string()
-      .nonempty("Champ requis")
-      .min(6, { message: "Trop court" }),
-  })
-);
+function submitForm() {
+  const node = loginFormDataRef.value.node;
 
-const { handleSubmit, resetForm, errors } = useForm({
-  validationSchema,
-});
+  node.submit();
+}
 
-const onSubmit = handleSubmit(async (values) => {
+async function submitHandler() {
   try {
     await axios
-      .post("/api/v1/token/login/", values)
+      .post("/api/v1/token/login/", loginFormData.value)
       .then((response) => {
         const token = response.data.auth_token;
 
@@ -85,18 +73,17 @@ const onSubmit = handleSubmit(async (values) => {
         storeProduct.getProducts;
 
         // Reset form data and go to Dashboard
-        resetForm();
         route.push({ name: "Dashboard" });
       })
       .catch((error) => {
         toast.error(JSON.stringify(error.message), { position: "top-right" });
       });
   } catch (err) {
-    toast.error("err: " + err + "\nerrors :" + errors, {
+    toast.error("err: " + err + "\nerrors :" + err, {
       position: "top-right",
     });
   }
-});
+}
 </script>
 
 <template>
@@ -110,23 +97,35 @@ const onSubmit = handleSubmit(async (values) => {
       <h3 class="text-center text-2xl font-bold">
         Connecter vous à votre compte
       </h3>
-      <form @submit.prevent="onSubmit">
-        <MyInput
-          type="email"
-          name="email"
-          placeholder="Email"
-          wrapperclass="mt-4"
-        />
-        <MyInput
-          type="password"
-          name="password"
-          placeholder="Mot de passe"
-          wrapperclass="mt-4"
-        />
+      <FormKit
+        type="form"
+        ref="loginFormDataRef"
+        v-model="loginFormData"
+        :actions="false"
+        @submit="submitHandler"
+      >
+        <div class="mt-4">
+          <FormKit
+            type="email"
+            name="email"
+            placeholder="Email"
+            validation="required|email"
+          />
+        </div>
+
+        <div class="mt-4">
+          <FormKit
+            type="password"
+            name="password"
+            placeholder="Mot de passe"
+            validation="required"
+            @keydown.enter="submitForm"
+          />
+        </div>
 
         <!-- button group -->
         <div class="mt-4 flex items-baseline justify-between">
-          <MyButton type="submit" label="Se connecter" />
+          <MyButton label="Se connecter" @click="submitForm" />
 
           <div class="flex flex-col">
             <RouterLink
@@ -144,7 +143,7 @@ const onSubmit = handleSubmit(async (values) => {
             </RouterLink>
           </div>
         </div>
-      </form>
+      </FormKit>
     </div>
   </div>
 </template>

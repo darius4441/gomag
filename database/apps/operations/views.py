@@ -22,11 +22,11 @@ from apps.stock.models import Product
 from .models import Item, Operation
 from .serializers import ItemSerializer, OperationSerializer
 
-# ? from xhtml2pdf import pisa
+# from xhtml2pdf import pisa
 
 
 class OperationPagination(PageNumberPagination):
-    page_size = 17
+    page_size = 50
 
 
 class ItemViewSet(viewsets.ModelViewSet):
@@ -163,7 +163,9 @@ class UndoneApiView(APIView):
 @permission_classes([permissions.IsAuthenticated])
 def generate_pdf(request, operation_id):
     pass
-    """ TODO operation = get_object_or_404(
+
+    """
+    operation = get_object_or_404(
         Operation, pk=operation_id, created_by=request.user
     )
 
@@ -179,7 +181,8 @@ def generate_pdf(request, operation_id):
     if pisa_status.err:
         return HttpResponse("We had some errors <pre>" + html + "</pre>")
 
-    return response """
+    return response
+"""
 
 
 @api_view(["GET"])
@@ -193,18 +196,40 @@ def update__stock_qty(request, operation_id):
 
     try:
         if operation.state != "done":
-            # decrease current product quantity if operation_type is 'out'
             if operation.m_type == "out":
                 for item in items:
                     product = Product.objects.get(id=item.article.id)
+
+                    item.old_qty = product.real_quantity  # ? save old qty
                     product.real_quantity -= item.quantity
+
+                    item.save()
                     product.save()
 
-            # increase else
+            elif operation.m_type == "in":
+                for item in items:
+                    product = Product.objects.get(id=item.article.id)
+
+                    a = product.unit_cost * product.real_quantity
+                    b = item.cost * item.quantity
+                    c = product.real_quantity * item.quantity
+
+                    product.unit_cost = (a + b) / c  # ? FIFO
+                    item.old_qty = product.real_quantity  # ? save old qty
+
+                    product.real_quantity += item.quantity
+
+                    item.save()
+                    product.save()
+
             else:
                 for item in items:
                     product = Product.objects.get(id=item.article.id)
+
+                    item.old_qty = product.real_quantity  # ? save old qty
                     product.real_quantity += item.quantity
+
+                    item.save()
                     product.save()
 
             operation.state = "done"

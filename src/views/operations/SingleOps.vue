@@ -126,7 +126,7 @@ onMounted(async () => {
 <template>
   <div>
     <!-- Header -->
-    <div class="mx-auto w-full px-4">
+    <div class="mx-auto w-full px-4 print:hidden">
       <div class="flex flex-col">
         <div class="flex w-full flex-row items-center justify-between">
           <div>

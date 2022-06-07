@@ -74,6 +74,8 @@ export default {
   },
   search: textClassification,
   select: textClassification,
+  combobox: textClassification,
+  autocomplete: textClassification,
   submit: buttonClassification,
   tel: textClassification,
   text: textClassification,
