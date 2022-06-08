@@ -1,5 +1,5 @@
 <script setup>
-import { RefreshIcon, XIcon } from "@heroicons/vue/solid";
+import { RefreshIcon, PlusCircleIcon, XIcon } from "@heroicons/vue/solid";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
 import { useFieldArray, useForm } from "vee-validate";
@@ -211,6 +211,14 @@ const onSubmit =
         isLoading.value = false;
       }, onInvalidSubmit);
 
+function goToCreateProduct() {
+  const routeData = router.resolve({
+    name: "CreateProduct",
+  });
+
+  window.open(routeData.href, "blank");
+}
+
 onMounted(async () => {
   pageStore.updatePageName("Entrées - Sorties");
 
@@ -278,7 +286,13 @@ onMounted(async () => {
                       <th
                         class="sticky top-0 whitespace-nowrap bg-kWhiteColor p-3 text-left align-middle text-xs font-semibold dark:bg-kDarkColor"
                       >
-                        Article
+                        <div class="flex items-center">
+                          <span>Article</span>
+                          <PlusCircleIcon
+                            @click="goToCreateProduct"
+                            class="ml-3 h-4 w-4 cursor-pointer text-emerald-500 hover:text-emerald-700"
+                          />
+                        </div>
                       </th>
                       <th
                         class="sticky top-0 w-2/12 whitespace-nowrap bg-kWhiteColor p-3 text-right align-middle text-xs font-semibold dark:bg-kDarkColor"

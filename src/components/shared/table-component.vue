@@ -14,11 +14,20 @@ const emits = defineEmits(["inQuantity"]);
 
 const router = useRouter();
 
-async function goToSingleProduct(id) {
-  router.push({ name: "SingleProduct", params: { id: id } });
+function goToSingleProduct(id, isNewTab) {
+  if (isNewTab ?? false) {
+    const routeData = router.resolve({
+      name: "SingleProduct",
+      params: { id: id },
+    });
+
+    window.open(routeData.href, "blank");
+  } else {
+    router.push({ name: "SingleProduct", params: { id: id } });
+  }
 }
 
-async function goToSingleOps(id) {
+function goToSingleOps(id) {
   router.push({ name: "SingleOps", params: { id: id } });
 }
 
@@ -88,7 +97,7 @@ localStorage.removeItem("vueUseContact");
         </template>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="mt-6">
       <template v-if="props.what_data == 'product'">
         <tr
           v-for="(item, idx) in data_list"
@@ -167,6 +176,7 @@ localStorage.removeItem("vueUseContact");
         <tr
           v-for="(item, idx) in data_list"
           :key="idx"
+          @click="goToSingleProduct(item.article, true)"
           class="py-1 hover:bg-kPrimaryColor hover:text-kWhiteColor"
         >
           <th

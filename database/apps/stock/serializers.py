@@ -46,6 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "prod_type",
+            "isArchived",
             "category",
             "code",
             "description",

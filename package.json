@@ -19,6 +19,7 @@
     "@suadelabs/vue3-multiselect": "^1.0.2",
     "@vee-validate/zod": "^4.5.11",
     "@vueuse/core": "^8.4.1",
+    "@vueuse/motion": "^2.0.0-beta.12",
     "axios": "^0.27.2",
     "chart.js": "^3.7.1",
     "js-file-download": "^0.4.12",

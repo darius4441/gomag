@@ -1,8 +1,8 @@
-import { autoAnimatePlugin } from "@formkit/auto-animate/vue";
 import { fr } from "@formkit/i18n";
 import { generateClasses } from "@formkit/themes";
 import { defaultConfig, plugin } from "@formkit/vue";
 import "@suadelabs/vue3-multiselect/dist/vue3-multiselect.css";
+import { MotionPlugin } from "@vueuse/motion";
 import axios from "axios";
 import { createPinia } from "pinia";
 import { createApp } from "vue-demi";
@@ -31,8 +31,8 @@ app.use(
     },
   })
 );
-app.use(autoAnimatePlugin);
 app.use(VueToast, {
   position: "top-right",
 });
+app.use(MotionPlugin);
 app.mount("#app");

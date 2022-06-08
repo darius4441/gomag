@@ -4,10 +4,9 @@ import { token } from "@formkit/utils";
 import { getNode, createMessage } from "@formkit/core";
 import { createInput } from "@formkit/vue";
 import MyCombobox from "../components/shared/forms/BaseFormKitInput.vue";
-import MyCombobox2 from "../components/shared/forms/FormKitExample.vue";
+import MyButton from "../components/shared/my-action.vue";
 
 const combobox = createInput(MyCombobox, { props: ["options"] });
-const combobox2 = createInput(MyCombobox2);
 
 const products = ref([
   {
@@ -420,6 +419,9 @@ const products = ref([
   },
 ]);
 
+const addItemFormRef = ref(null);
+const addItemFormData = ref({});
+
 const initial = {
   items: [
     Object.defineProperty({}, "key", {
@@ -451,29 +453,41 @@ async function addItem() {
     group.reset();
   }
 }
+
+function addValidateForm() {
+  const node = addItemFormRef.value.node;
+
+  node.submit();
+}
+
+function addItemHandler() {
+  console.log(JSON.stringify(addItemFormData.value, null, 2));
+}
 </script>
 
 <template>
+  <MyButton
+    type="button"
+    @click="addValidateForm"
+    :isOutlined="true"
+    label="Ajouter"
+    class="ml-4"
+  />
+
   <FormKit
+    ref="addItemFormRef"
+    v-model="addItemFormData"
     type="form"
     id="myForm"
     :value="initial"
-    #default="{ value: formValues }"
+    :actions="false"
+    @submit="addItemHandler"
   >
     <FormKit type="list" name="items" #default="{ value: rows }">
       <FormKit v-for="row in rows" :key="row.key" type="group">
         <div class="flex gap-x-4">
-          <!-- <FormKit
-            :type="combobox"
-            name="article"
-            label="Article"
-            :options="products"
-            validation="required"
-            validation-visibility="submit"
-          /> -->
-
           <FormKit
-            :type="combobox2"
+            :type="combobox"
             name="article"
             label="Article"
             :options="products"
@@ -512,6 +526,6 @@ async function addItem() {
       <FormKit type="button" label="Add row" @click="addItem" />
     </FormKit>
 
-    <pre>{{ formValues }}</pre>
+    <!-- <pre>{{ formValues }}</pre> -->
   </FormKit>
 </template>

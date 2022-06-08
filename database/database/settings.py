@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "import_export",
     "django_filters",
-    "drf_yasg",
+    # "drf_yasg",
     # "docs",
     # own apps
     "apps.stock",

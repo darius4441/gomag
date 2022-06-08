@@ -85,7 +85,7 @@ async function getProductHistory() {
     });
 }
 
-async function goToEditPage() {
+function goToEditPage() {
   useLocalStorage("vueUseProduct", product.value);
   router.push({ name: "EditProduct", params: { id: productID } });
 }
@@ -94,6 +94,19 @@ function goToDuplicatePage() {
   localStorage.setItem("vueUseDuplicateProduct", JSON.stringify(product.value));
 
   router.push({ name: "DuplicateProduct" });
+}
+
+function goToHistorySingleProduct(id, isNewTab) {
+  if (isNewTab ?? false) {
+    const routeData = router.resolve({
+      name: "SingleProduct",
+      params: { id: id },
+    });
+
+    window.open(routeData.href, "blank");
+  } else {
+    router.push({ name: "SingleProduct", params: { id: id } });
+  }
 }
 
 async function archiveProduct() {
@@ -283,8 +296,8 @@ onMounted(async () => {
                 :isOutlined="false"
                 @click="
                   archiveDeletionModalTitle === 'supprimer'
-                    ? deleteProduct
-                    : archiveProduct
+                    ? deleteProduct()
+                    : archiveProduct()
                 "
               />
               <MyButton
@@ -390,7 +403,7 @@ onMounted(async () => {
                     Société / Fournisseur
                   </span>
                   <div
-                    class="block h-7 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    class="block h-7 w-full truncate rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
                   >
                     {{ product.providers }}
                   </div>
@@ -471,9 +484,10 @@ onMounted(async () => {
               <div
                 v-for="(item, i) in history.items"
                 :key="i"
+                @click="goToHistorySingleProduct(item.article, true)"
                 :class="[
                   item.article == productID ? '  rounded bg-pink-200 px-2' : '',
-                  'flex items-center',
+                  'flex cursor-pointer items-center hover:opacity-75',
                 ]"
               >
                 <CheckCircleIcon class="mr-2 h-3 w-3 text-emerald-600" />
