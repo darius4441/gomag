@@ -16,13 +16,12 @@ from rest_framework.decorators import (
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from xhtml2pdf import pisa
 
 from apps.stock.models import Product
 
 from .models import Item, Operation
 from .serializers import ItemSerializer, OperationSerializer
-
-# from xhtml2pdf import pisa
 
 
 class OperationPagination(PageNumberPagination):
@@ -38,7 +37,9 @@ class ItemViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def items_to_be_counted(self, request):
         products = (
-            Item.objects.filter(operation__state="draft")
+            Item.objects.filter(
+                operation__state="draft", operation__m_type="out"
+            )
             .filter(quantity__gt=F("article__real_quantity"))
             .order_by("article__name")
         )
@@ -162,9 +163,7 @@ class UndoneApiView(APIView):
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def generate_pdf(request, operation_id):
-    pass
 
-    """
     operation = get_object_or_404(
         Operation, pk=operation_id, created_by=request.user
     )
@@ -182,7 +181,6 @@ def generate_pdf(request, operation_id):
         return HttpResponse("We had some errors <pre>" + html + "</pre>")
 
     return response
-"""
 
 
 @api_view(["GET"])
@@ -210,11 +208,13 @@ def update__stock_qty(request, operation_id):
                 for item in items:
                     product = Product.objects.get(id=item.article.id)
 
-                    a = product.unit_cost * product.real_quantity
-                    b = item.cost * item.quantity
-                    c = product.real_quantity * item.quantity
+                    if item.cost:
+                        a = product.unit_cost * product.real_quantity
+                        b = item.cost * item.quantity
+                        c = product.real_quantity * item.quantity
 
-                    product.unit_cost = (a + b) / c  # ? FIFO
+                        product.unit_cost = (a + b) / c  # ? FIFO
+
                     item.old_qty = product.real_quantity  # ? save old qty
 
                     product.real_quantity += item.quantity

@@ -1,47 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
-import Register from "../views/auth/sign-up.vue";
-import Login from "../views/auth/sign-in.vue";
-import Profile from "../views/auth/profile-screen.vue";
-
-import Dashboard from "../views/dashboard-screen.vue";
-
-import TestScreen from "../views/test-screen.vue";
-
-import Settings from "../views/settings-screen.vue";
-
-import Contacts from "../views/contact/contact-list.vue";
-import SingleContact from "../views/contact/SingleContact.vue";
-import EditContact from "../views/contact/EditContact.vue";
-import CreateContact from "../views/contact/CreateContact.vue";
-import DuplicateContact from "../views/contact/DuplicateContact.vue";
-
-import Operations from "../views/operations/operation-list.vue";
-import CreateOps from "../views/operations/CreateOps.vue";
-import SingleOps from "../views/operations/SingleOps.vue";
-import EditOps from "../views/operations/EditOps.vue";
-
-import Stock from "../views/stock/Stock.vue";
-import Products from "../views/stock/product-list.vue";
-import SingleProduct from "../views/stock/SingleProduct.vue";
-import CreateProduct from "../views/stock/CreateProduct.vue";
-import DuplicateProduct from "../views/stock/duplicate-product-screen.vue";
-import CreateMultipleProducts from "../views/stock/CreateMultipleProducts.vue";
-import EditProduct from "../views/stock/edit-product.vue";
-
-import Inventory from "../views/stock/Inventory.vue";
-import CreateInventory from "../views/stock/CreateInventory.vue";
-import SingleInv from "../views/stock/SingleInventory.vue";
-
-import POS from "../views/pos/pos-screen.vue";
-
 const routes = [
   // ? auth route area
   {
     path: "/register",
     name: "Register",
-    component: Register,
+    component: () => import("../views/auth/sign-up.vue"),
     meta: {
       title: "S'inscrire",
     },
@@ -50,7 +15,7 @@ const routes = [
   {
     path: "/login",
     name: "Login",
-    component: Login,
+    component: () => import("../views/auth/sign-in.vue"),
     meta: {
       title: "Se connecter",
     },
@@ -59,7 +24,7 @@ const routes = [
   {
     path: "/profile",
     name: "Profile",
-    component: Profile,
+    component: () => import("../views/auth/profile-screen.vue"),
     meta: {
       title: "Mon compte",
       requireLogin: true,
@@ -70,7 +35,7 @@ const routes = [
   {
     path: "/",
     name: "Dashboard",
-    component: Dashboard,
+    component: () => import("../views/dashboard-screen.vue"),
     meta: {
       title: "Tableau de bord",
       requireLogin: true,
@@ -80,7 +45,7 @@ const routes = [
   {
     path: "/settings",
     name: "Settings",
-    component: Settings,
+    component: () => import("../views/settings-screen.vue"),
     meta: {
       title: "Paramètre de l'entreprise",
       requireLogin: true,
@@ -90,7 +55,7 @@ const routes = [
   {
     path: "/ecran-test",
     name: "TestScreen",
-    component: TestScreen,
+    component: () => import("../views/test-screen.vue"),
     meta: {
       title: "Ecran de test",
       requireLogin: false,
@@ -101,7 +66,7 @@ const routes = [
   {
     path: "/contacts",
     name: "Contacts",
-    component: Contacts,
+    component: () => import("../views/contact/contact-list.vue"),
     meta: {
       title: "Contact",
       requireLogin: true,
@@ -110,7 +75,7 @@ const routes = [
   {
     path: "/contacts/:id",
     name: "SingleContact",
-    component: SingleContact,
+    component: () => import("../views/contact/SingleContact.vue"),
     meta: {
       title: "Détail Contact",
       requireLogin: true,
@@ -119,7 +84,7 @@ const routes = [
   {
     path: "/contacts/:id/edit",
     name: "EditContact",
-    component: EditContact,
+    component: () => import("../views/contact/EditContact.vue"),
     meta: {
       title: "Mise à jour Contact",
       requireLogin: true,
@@ -128,7 +93,7 @@ const routes = [
   {
     path: "/contacts/create",
     name: "CreateContact",
-    component: CreateContact,
+    component: () => import("../views/contact/CreateContact.vue"),
     meta: {
       title: "Nouveau contact",
       requireLogin: true,
@@ -137,7 +102,7 @@ const routes = [
   {
     path: "/contacts/create",
     name: "DuplicateContact",
-    component: DuplicateContact,
+    component: () => import("../views/contact/DuplicateContact.vue"),
     meta: {
       title: "Nouveau contact",
       requireLogin: true,
@@ -148,7 +113,7 @@ const routes = [
   {
     path: "/operations",
     name: "Operations",
-    component: Operations,
+    component: () => import("../views/operations/operation-list.vue"),
     meta: {
       title: "Entrées - Sorties",
       requireLogin: true,
@@ -157,7 +122,7 @@ const routes = [
   {
     path: "/operations/:id",
     name: "SingleOps",
-    component: SingleOps,
+    component: () => import("../views/operations/SingleOps.vue"),
     meta: {
       title: "Détail Opération",
       requireLogin: true,
@@ -166,7 +131,7 @@ const routes = [
   {
     path: "/operations/:id/edit",
     name: "EditOps",
-    component: EditOps,
+    component: () => import("../views/operations/EditOps.vue"),
     meta: {
       title: "Mise à jour Opération",
       requireLogin: true,
@@ -175,7 +140,7 @@ const routes = [
   {
     path: "/operations/create",
     name: "CreateOps",
-    component: CreateOps,
+    component: () => import("../views/operations/CreateOps.vue"),
     meta: {
       title: "Nouvelle Opération",
       requireLogin: true,
@@ -186,7 +151,7 @@ const routes = [
   {
     path: "/stock",
     name: "Stock",
-    component: Stock,
+    component: () => import("../views/stock/Stock.vue"),
     meta: {
       title: "Votre stock",
       requireLogin: true,
@@ -195,7 +160,7 @@ const routes = [
   {
     path: "/stock/inventory",
     name: "Inventory",
-    component: Inventory,
+    component: () => import("../views/stock/Inventory.vue"),
     meta: {
       title: "Espace inventaire",
       requireLogin: true,
@@ -204,7 +169,7 @@ const routes = [
   {
     path: "/stock/inventory/create",
     name: "CreateInventory",
-    component: CreateInventory,
+    component: () => import("../views/stock/CreateInventory.vue"),
     meta: {
       title: "Nouveau inventaire",
       requireLogin: true,
@@ -213,7 +178,7 @@ const routes = [
   {
     path: "/stock/inventory/:id",
     name: "SingleInv",
-    component: SingleInv,
+    component: () => import("../views/stock/SingleInventory.vue"),
     meta: {
       title: "Détail Inventaire",
       requireLogin: true,
@@ -224,7 +189,7 @@ const routes = [
   {
     path: "/stock/products",
     name: "Products",
-    component: Products,
+    component: () => import("../views/stock/product-list.vue"),
     meta: {
       title: "Liste des produits",
       requireLogin: true,
@@ -233,7 +198,7 @@ const routes = [
   {
     path: "/stock/products/:id",
     name: "SingleProduct",
-    component: SingleProduct,
+    component: () => import("../views/stock/SingleProduct.vue"),
     meta: {
       title: "Détail Produit",
       requireLogin: true,
@@ -242,7 +207,7 @@ const routes = [
   {
     path: "/stock/products/create",
     name: "CreateProduct",
-    component: CreateProduct,
+    component: () => import("../views/stock/CreateProduct.vue"),
     meta: {
       title: "Création de produit",
       requireLogin: true,
@@ -251,7 +216,7 @@ const routes = [
   {
     path: "/stock/products/create",
     name: "DuplicateProduct",
-    component: DuplicateProduct,
+    component: () => import("../views/stock/duplicate-product-screen.vue"),
     meta: {
       title: "Création de produit",
       requireLogin: true,
@@ -260,7 +225,7 @@ const routes = [
   {
     path: "/stock/products/create-multiple",
     name: "CreateMultipleProducts",
-    component: CreateMultipleProducts,
+    component: () => import("../views/stock/CreateMultipleProducts.vue"),
     meta: {
       title: "Création multiple de produits",
       requireLogin: true,
@@ -269,7 +234,7 @@ const routes = [
   {
     path: "/stock/products/:id/edit",
     name: "EditProduct",
-    component: EditProduct,
+    component: () => import("../views/stock/edit-product.vue"),
     meta: {
       title: "Mise à jour Produit",
       requireLogin: true,
@@ -280,7 +245,7 @@ const routes = [
   {
     path: "/pos",
     name: "POS",
-    component: POS,
+    component: () => import("../views/pos/pos-screen.vue"),
     meta: {
       title: "POS",
       requireLogin: true,

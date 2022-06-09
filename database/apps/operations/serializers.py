@@ -14,6 +14,7 @@ class ItemSerializer(serializers.ModelSerializer):
             "quantity",
             "unit",
             "old_qty",
+            "cost",
             "get_article_name",
             "get_article_available_qty",
         )

@@ -165,23 +165,7 @@ onMounted(async () => {
     <div class="mx-auto w-full px-4">
       <div class="flex w-full flex-row items-end justify-between">
         <MyButton label="Créer une opération" to="CreateOps" />
-        <div>
-          <multiselect
-            v-model="options"
-            :options="options"
-            :custom-label="customLabel"
-            :multiple="true"
-            placeholder="Filtrer"
-            label="name"
-            selectLabel="appliquer ce filtre"
-            selectedLabel="déjà appliqué"
-            deselectLabel="supprimer le filtre"
-            track-by="name"
-            :showNoResults="false"
-          >
-            <template v-slot:noOptions>...</template>
-          </multiselect>
-
+        <div class="flex gap-x-4 items-center">
           <MyPopover menuItemsWidthClass="w-64 left-0">
             <template #button>
               <PopoverButton
@@ -229,6 +213,22 @@ onMounted(async () => {
               </div>
             </template>
           </MyPopover>
+
+          <multiselect
+            v-model="options"
+            :options="options"
+            :custom-label="customLabel"
+            :multiple="true"
+            placeholder="Filtrer"
+            label="name"
+            selectLabel="appliquer ce filtre"
+            selectedLabel="déjà appliqué"
+            deselectLabel="supprimer le filtre"
+            track-by="name"
+            :showNoResults="false"
+          >
+            <template v-slot:noOptions>...</template>
+          </multiselect>
         </div>
       </div>
     </div>

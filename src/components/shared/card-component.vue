@@ -8,7 +8,7 @@ export default {
   <div class="my-4 flex flex-wrap">
     <div class="w-full px-4">
       <div
-        class="relative flex w-full flex-col break-words rounded shadow-lg dark:shadow-md dark:shadow-kTertiaryColor"
+        class="relative block h-[74vh] flex w-full flex-col break-words rounded shadow-lg dark:shadow-md dark:shadow-kTertiaryColor"
       >
         <div class="mb-0 rounded-t border-0 px-4 py-3">
           <div class="flex flex-wrap items-center">
@@ -19,7 +19,7 @@ export default {
             </div>
           </div>
         </div>
-        <div class="block h-[70vh] w-full overflow-x-auto px-4 print:h-auto">
+        <div class="w-full overflow-x-auto px-4 print:h-auto">
           <slot name="content"></slot>
         </div>
 
