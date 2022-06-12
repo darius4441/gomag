@@ -1,15 +1,16 @@
 <script setup>
-import { RefreshIcon, PlusCircleIcon, XIcon } from "@heroicons/vue/solid";
+import { PlusCircleIcon, RefreshIcon, XIcon } from "@heroicons/vue/solid";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
-import { useFieldArray, useForm } from "vee-validate";
+import Calendar from "primevue/calendar";
+import Dropdown from "primevue/dropdown";
+import { useField, useFieldArray, useForm } from "vee-validate";
 import { onMounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
 import * as zod from "zod";
 import NestedArray from "../../components/operations/creation-item-form.vue";
 import Card from "../../components/shared/card-component.vue";
-import MyInput from "../../components/shared/forms/BaseInput.vue";
 import MyButton from "../../components/shared/my-action.vue";
 import { useTempStore } from "../../stores/temp";
 
@@ -21,7 +22,7 @@ const toast = useToast();
 // Define vars / const
 const isLoading = ref(false);
 const products = ref([]);
-const query = ref("");
+const contactOptions = ref([]);
 const typeList = ref([
   {
     value: "out",
@@ -37,8 +38,6 @@ const typeList = ref([
   },
 ]);
 
-const contactOptions = ref([]);
-
 const validationSchema = toFormValidator(
   zod.object({
     contact: zod.number({
@@ -47,7 +46,7 @@ const validationSchema = toFormValidator(
     m_type: zod.string({
       required_error: "obligatoire",
     }),
-    date: zod.string({
+    date: zod.date({
       required_error: "obligatoire",
     }),
     items: zod
@@ -98,13 +97,15 @@ const validationSchema = toFormValidator(
             invalid_type_error: "la quantité doit etre un nombre réel positif",
           })
           .gte(1),
+        unit: zod.string().nullish(),
         cost: zod.number().nullish(),
-        // unit: zod.string(),
       })
       .array()
       .nonempty({
         message: "Can't be empty!",
       }),
+    unit: zod.string().nullish(),
+    cost: zod.number().nullish(),
   })
 );
 
@@ -118,17 +119,20 @@ const { handleSubmit } = useForm({
   },
 });
 
-// define array fields
-const { remove, push, fields } = useFieldArray("items");
+const { value: contact } = useField("contact");
+const { value: m_type } = useField("m_type");
+const { value: date } = useField("date");
+const { remove, push, fields } = useFieldArray("items"); // nested array fields
 
+// Define functions
 const addItemWatcher = handleSubmit(() => {
-  push({ article: {}, quantity: 1, unit: "pcs" });
+  push({ article: null, quantity: 1, unit: "pcs" });
 }, onInvalidSubmit);
 
 function addItem() {
   fields.value.length == 0
     ? push({
-        article: {},
+        article: null,
         quantity: 1,
         unit: "pcs",
       })
@@ -137,9 +141,9 @@ function addItem() {
 
 async function getProducts() {
   await axios
-    .get(`/api/v1/stock/products/?page=${1}&search=${query.value}`)
+    .get("/api/v1/stock/products")
     .then((response) => {
-      products.value = response.data.results;
+      products.value = response.data;
     })
     .catch((error) => {
       toast.error(JSON.stringify(error));
@@ -257,17 +261,55 @@ onMounted(async () => {
             <div class="flex flex-col">
               <!-- order main info -->
               <div
-                class="mx-auto flex flex-row justify-between gap-4 rounded-lg border-2 border-kPrimaryColor p-4 py-4 dark:border-kWhiteColor"
+                class="mx-auto flex flex-row justify-between gap-4 rounded-lg border-2 border-kPrimaryColor px-4 py-7 dark:border-kWhiteColor"
               >
-                <MyInput
-                  type="select"
-                  name="contact"
-                  :options="contactOptions"
-                />
+                <span class="p-float-label text-md text-slate-700">
+                  <Dropdown
+                    id="contact"
+                    v-model="contact"
+                    :options="contactOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Choisissez le contact"
+                    class="w-72"
+                    inputClass="w-full"
+                  />
 
-                <MyInput type="select" name="m_type" :options="typeList" />
+                  <label for="contact" class="text-md text-slate-700">
+                    Contact
+                  </label>
+                </span>
 
-                <MyInput type="date" name="date" :todayShortcut="true" />
+                <span class="p-float-label text-md text-slate-700">
+                  <Dropdown
+                    id="m_type"
+                    v-model="m_type"
+                    :options="typeList"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Choisissez le type"
+                    class="w-36"
+                    inputClass="w-full"
+                  />
+
+                  <label for="m_type" class="text-md text-slate-700">
+                    Type d'opération
+                  </label>
+                </span>
+
+                <div>
+                  <span class="p-float-label text-md text-slate-700">
+                    <Calendar
+                      id="date"
+                      v-model="date"
+                      class="w-32"
+                      inputClass="w-full"
+                    />
+                    <label for="date" class="text-md text-slate-700">
+                      Date
+                    </label>
+                  </span>
+                </div>
               </div>
 
               <!-- order items info -->
@@ -321,7 +363,13 @@ onMounted(async () => {
                       :key="item.key"
                       class="rounded-lg focus-within:border-b-2 focus-within:border-kPrimaryColor hover:border-b"
                     >
-                      <NestedArray :idx="idx" @addItem="addItem" />
+                      <NestedArray
+                        :idx="idx"
+                        :checkType="m_type"
+                        :products="products"
+                        @addItem="addItem"
+                      />
+
                       <td
                         class="w-1/12 whitespace-nowrap py-1 px-1.5 text-center align-middle text-xs"
                       >

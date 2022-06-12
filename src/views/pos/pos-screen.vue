@@ -1,21 +1,30 @@
 <script setup>
 import articlePhoto from "@/assets/images/default/article-default-img.png";
 import { reset } from "@formkit/core";
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  MenuButton,
+  MenuItem,
+} from "@headlessui/vue";
 import axios from "axios";
 import { computed, onMounted, ref } from "vue-demi";
 import MyButton from "../../components/shared/my-action.vue";
 import { useTempStore } from "../../stores/temp";
+import MyMenu from "../../components/shared/my-menu.vue";
+import ConfirmOrderModal from "../../components/pos/confirm_order_modal.vue";
 // ? Define composables
 const pageStore = useTempStore();
 
 // ? Define vars - consts
+const product = ref({});
 const products = ref([]);
 const search = ref("");
 const order = ref([]);
 const addItemFormRef = ref(null);
-
 const addItemFormData = ref({});
+const isConfirmOrderModal = ref(false);
 
 const discount = ref("");
 const subTotal = computed(() => {
@@ -53,6 +62,17 @@ async function getProducts() {
     });
 }
 
+async function getProduct(id) {
+  await axios
+    .get(`api/v1/stock/products/${id}`)
+    .then((response) => {
+      product.value = response.data;
+    })
+    .catch((error) => {
+      console.log(JSON.stringify(error));
+    });
+}
+
 const getCorrectPhoto = (item) => {
   item;
   return articlePhoto;
@@ -66,44 +86,90 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex h-[86vh] flex-row gap-x-4 p-4">
+  <ConfirmOrderModal
+    :order="{
+      items: order,
+      resumeInfo: {
+        subTotal: subTotal,
+        discount: discount,
+        totalAmount: totalAmount,
+      },
+    }"
+    :isOpen="isConfirmOrderModal"
+    @closeModal="isConfirmOrderModal = false"
+  />
+
+  <div class="flex h-[85vh] flex-row gap-x-4 mb-2">
     <!-- add item area -->
     <div class="relative basis-3/4">
-      <div class="m-4 flex flex-wrap gap-4">
-        <button
+      <div
+        class="grid p-1 h-[60vh] gap-2 overflow-y-auto grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+      >
+        <MyMenu
           v-for="(item, idx) in products"
           :key="idx"
-          @dblclick="
-            () => {
-              addItemFormData.articleID = item.id;
-              addItemFormData.article = item.name;
-              addItemFormData.quantity = 1;
-              addItemFormData.unit = item.uom;
-              addItemFormData.unit_price = item.unit_price;
-            }
-          "
-          class="w-32 cursor-pointer rounded bg-white shadow-lg duration-300 hover:-translate-y-2"
+          v-motion-pop-visible-once
+          menuItemsWidthClass="top-0"
+          class="mx-auto"
         >
-          <div class="relative">
-            <img :src="getCorrectPhoto(item)" alt="image" />
-            <div
-              class="absolute top-2 right-2 rounded bg-kPrimaryColor text-kWhiteColor"
+          <template #menu_button>
+            <MenuButton
+              @click="getProduct(item.id)"
+              @dblclick="
+                () => {
+                  addItemFormData.articleID = item.id;
+                  addItemFormData.article = item.name;
+                  addItemFormData.quantity = 1;
+                  addItemFormData.unit = item.uom;
+                  addItemFormData.unit_price = item.unit_price;
+                }
+              "
+              class="cursor-pointer w-40 sm:w-36 md:w-32 lg:w-36 rounded bg-white shadow-lg duration-300 hover:ring-2 ring-kPrimaryColor"
             >
-              <span class="px-2 text-sm">
-                {{ Number(item.unit_price).toLocaleString() }} F</span
+              <div class="relative">
+                <img :src="getCorrectPhoto(item)" alt="image" class="w-full" />
+                <div
+                  class="absolute top-2 right-2 rounded bg-kPrimaryColor text-kWhiteColor"
+                >
+                  <span class="px-2 text-sm">
+                    {{ Number(item.unit_price).toLocaleString() }} F</span
+                  >
+                </div>
+              </div>
+              <div class="h-12 w-full overflow-y-hidden bg-white p-1 shadow-lg">
+                <p class="text-left text-xs dark:text-kPrimaryColor">
+                  {{ item.name }}
+                </p>
+              </div>
+            </MenuButton>
+          </template>
+
+          <template #menu_content>
+            <MenuItem as="div" class="truncate text-xs"
+              >Dispo :
+              <span class="font-bold">{{ product.real_quantity }}</span>
+              <span class="font-bold ml-1">{{ product.uom }}</span>
+            </MenuItem>
+            <MenuItem as="div" class="truncate text-xs"
+              >Détail :
+              <span class="font-bold">{{ product.unit_price }} F</span>
+            </MenuItem>
+            <MenuItem as="div" class="truncate text-xs"
+              >½ gros :
+              <span class="font-bold"
+                >{{ product.semi_wholesale_price }} F</span
               >
-            </div>
-          </div>
-          <div class="h-12 w-full overflow-y-hidden bg-white p-1 shadow-lg">
-            <p class="text-left text-xs dark:text-kPrimaryColor">
-              {{ item.name }}
-            </p>
-          </div>
-        </button>
+            </MenuItem>
+            <MenuItem as="div" class="truncate text-xs"
+              >Gros :
+              <span class="font-bold">{{ product.wholesale_price }} F</span>
+            </MenuItem>
+          </template>
+        </MyMenu>
       </div>
 
       <div
-        class="absolute bottom-0 flex flex-col items-center py-4 shadow shadow-indigo-400"
+        class="absolute bottom-0 flex flex-col items-center p-1 shadow shadow-indigo-400"
       >
         <FormKit
           ref="addItemFormRef"
@@ -180,7 +246,7 @@ onMounted(async () => {
           <div
             v-for="(item, idx) in order"
             :key="idx"
-            v-auto-animate
+            v-motion-slide-bottom
             class="mx-auto mt-2 w-full rounded-lg bg-white"
           >
             <Disclosure>
@@ -232,7 +298,11 @@ onMounted(async () => {
           <div class="text-right font-bold">{{ totalAmount }}F</div>
         </div>
 
-        <MyButton label="Paiement" class="w-full" />
+        <MyButton
+          label="Paiement"
+          @click="isConfirmOrderModal = true"
+          class="w-full"
+        />
       </div>
     </div>
   </div>

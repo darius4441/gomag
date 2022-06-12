@@ -17,15 +17,16 @@ import {
 import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
 import moment from "moment";
+import Card from "primevue/card";
 import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
 import HeadInfo from "../../components/products/SingleProductTopInfo.vue";
-import Card from "../../components/shared/card-component.vue";
 import BaseModal from "../../components/shared/modals/BaseModal.vue";
 import InitialQty from "../../components/shared/modals/products/initial-qty.vue";
 import MyButton from "../../components/shared/my-action.vue";
 import MyMenu from "../../components/shared/my-menu.vue";
+import { useProduct } from "../../composables";
 import { useTempStore } from "../../stores/temp";
 
 //? declare composables
@@ -36,7 +37,8 @@ const toast = useToast();
 
 //? declare vars / consts
 const productID = route.params.id;
-const product = ref({});
+const { product, isLoading } = useProduct(productID);
+
 const productHistory = ref([]);
 const isShowModal = ref(false);
 const isShowArchiveDeletionModal = ref(false);
@@ -62,17 +64,6 @@ const trueProductTypeLabel = (label) => {
       break;
   }
 };
-
-async function getProduct() {
-  await axios
-    .get(`/api/v1/stock/products/${productID}`)
-    .then((response) => {
-      product.value = response.data;
-    })
-    .catch((error) => {
-      console.log(JSON.stringify(error));
-    });
-}
 
 async function getProductHistory() {
   await axios
@@ -190,7 +181,6 @@ const getFormattedTime = (date) => {
 onMounted(async () => {
   storePage.updatePageName("Stock");
 
-  await getProduct();
   await getProductHistory();
 });
 </script>
@@ -198,254 +188,258 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col md:flex-row">
     <div class="basis-3/5">
-      <div class="flex flex-col">
-        <!-- Header -->
-        <div
-          class="mx-auto flex w-full flex-row items-end justify-between px-4"
-        >
-          <div>
-            <div class="mb-1 flex flex-row items-end">
-              <router-link
-                :to="{ name: 'Products' }"
-                class="cursor-pointer text-kSecondaryColor hover:underline"
-                >Articles</router-link
-              >
-              <span class="mx-1">/</span>
-              <span class="text-sm">{{ product.name }}</span>
-            </div>
-            <div class="flex flex-row items-center">
-              <MyButton label="Modifier" @click="goToEditPage" />
-
-              <MyButton label="Créer" to="CreateProduct" :isOutlined="true" />
-            </div>
-          </div>
-
-          <div class="flex flex-row items-center">
-            <MyMenu>
-              <template #menu_button>
-                <MenuButton>
-                  <div
-                    class="rounded-lg px-2 py-1 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                  >
-                    <AdjustmentsIcon class="inline-block h-4 w-4" />
-                    <span class="ml-2">option</span>
-                  </div>
-                </MenuButton>
-              </template>
-
-              <template #menu_content>
-                <MenuItem>
-                  <button
-                    @click="enableArchiveDeletionModal('archiver')"
-                    class="mt-1 cursor-pointer rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                  >
-                    Archiver
-                  </button>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    @click="goToDuplicatePage"
-                    class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                  >
-                    Dupliquer
-                  </button>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    @click="enableArchiveDeletionModal('supprimer')"
-                    class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                  >
-                    Supprimer
-                  </button>
-                </MenuItem>
-              </template>
-            </MyMenu>
-          </div>
-
-          <div class="flex flex-row items-center gap-x-4">
-            <span class="text-sm">num/len</span>
-            <div>
-              <ChevronLeftIcon class="inline-block h-5 w-5" />
-              <ChevronRightIcon class="inline-block h-5 w-5" />
-            </div>
-          </div>
-        </div>
-
-        <!-- modals conditional display -->
-        <InitialQty
-          :isOpen="isShowModal"
-          :product="product"
-          @refreshProduct="getProduct()"
-          @closeModal="isShowModal = false"
-        />
-
-        <BaseModal
-          :isOpen="isShowArchiveDeletionModal"
-          overlay_bg="bg-red-600/70"
-          @closeModal="isShowArchiveDeletionModal = false"
-        >
-          <template #dialog_title>Confirmation</template>
-          <template #dialog_content
-            >Voulez vous réellement {{ archiveDeletionModalTitle }} cet article
-            ?</template
+      <template v-if="!isLoading">
+        <div class="flex flex-col">
+          <!-- Header -->
+          <div
+            class="mx-auto flex w-full flex-row items-end justify-between px-4"
           >
-          <template #dialog_footer>
-            <div class="flex flex-row">
-              <MyButton
-                label="OUI"
-                :isOutlined="false"
-                @click="
-                  archiveDeletionModalTitle === 'supprimer'
-                    ? deleteProduct()
-                    : archiveProduct()
-                "
-              />
-              <MyButton
-                label="NON"
-                :isOutlined="true"
-                @click="isShowArchiveDeletionModal = false"
-              />
-            </div>
-          </template>
-        </BaseModal>
+            <div>
+              <div class="mb-1 flex flex-row items-end">
+                <router-link
+                  :to="{ name: 'Products' }"
+                  class="cursor-pointer text-kSecondaryColor hover:underline"
+                  >Articles</router-link
+                >
+                <span class="mx-1">/</span>
+                <span class="text-sm">{{}}</span>
+              </div>
+              <div class="flex flex-row items-center">
+                <MyButton label="Modifier" @click="goToEditPage" />
 
-        <Card>
-          <template #title>
-            <div class="mb-4 flex h-16 justify-end border-b-2">
-              <HeadInfo
-                label="En stock"
-                :value="product.real_quantity"
-                icon="stock"
-                @dblclick="openModal()"
-              />
-              <HeadInfo
-                label="Tracabilité"
-                :value="product.real_quantity"
-                icon="tracability"
-              />
-              <HeadInfo
-                label="Réapprovisionner"
-                :value="product.real_quantity"
-                icon="replenishment"
-              />
+                <MyButton label="Créer" to="CreateProduct" :isOutlined="true" />
+              </div>
             </div>
-          </template>
 
-          <template #content>
-            <!-- name and photo input -->
-            <div class="mb-1 flex w-full flex-row items-end gap-x-12">
-              <div class="w-5/6">
+            <div class="flex flex-row items-center">
+              <MyMenu>
+                <template #menu_button>
+                  <MenuButton>
+                    <div
+                      class="rounded-lg px-2 py-1 hover:bg-kPrimaryColor hover:text-kWhiteColor"
+                    >
+                      <AdjustmentsIcon class="inline-block h-4 w-4" />
+                      <span class="ml-2">option</span>
+                    </div>
+                  </MenuButton>
+                </template>
+
+                <template #menu_content>
+                  <MenuItem>
+                    <button
+                      @click="enableArchiveDeletionModal('archiver')"
+                      class="mt-1 cursor-pointer rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
+                    >
+                      Archiver
+                    </button>
+                  </MenuItem>
+                  <MenuItem>
+                    <button
+                      @click="goToDuplicatePage"
+                      class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
+                    >
+                      Dupliquer
+                    </button>
+                  </MenuItem>
+                  <MenuItem>
+                    <button
+                      @click="enableArchiveDeletionModal('supprimer')"
+                      class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
+                    >
+                      Supprimer
+                    </button>
+                  </MenuItem>
+                </template>
+              </MyMenu>
+            </div>
+
+            <div class="flex flex-row items-center gap-x-4">
+              <span class="text-sm">num/len</span>
+              <div>
+                <ChevronLeftIcon class="inline-block h-5 w-5" />
+                <ChevronRightIcon class="inline-block h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <!-- modals conditional display -->
+          <InitialQty
+            :isOpen="isShowModal"
+            :product="product"
+            @refreshProduct="getProduct()"
+            @closeModal="isShowModal = false"
+          />
+
+          <BaseModal
+            :isOpen="isShowArchiveDeletionModal"
+            overlay_bg="bg-red-600/70"
+            @closeModal="isShowArchiveDeletionModal = false"
+          >
+            <template #dialog_title>Confirmation</template>
+            <template #dialog_content
+              >Voulez vous réellement {{ archiveDeletionModalTitle }} cet
+              article ?</template
+            >
+            <template #dialog_footer>
+              <div class="flex flex-row">
+                <MyButton
+                  label="OUI"
+                  :isOutlined="false"
+                  @click="
+                    archiveDeletionModalTitle === 'supprimer'
+                      ? deleteProduct()
+                      : archiveProduct()
+                  "
+                />
+                <MyButton
+                  label="NON"
+                  :isOutlined="true"
+                  @click="isShowArchiveDeletionModal = false"
+                />
+              </div>
+            </template>
+          </BaseModal>
+
+          <Card>
+            <template #title>
+              <div class="mb-4 flex h-16 justify-end border-b-2">
+                <HeadInfo
+                  label="En stock"
+                  :value="product.real_quantity"
+                  icon="stock"
+                  @dblclick="openModal()"
+                />
+                <HeadInfo
+                  label="Tracabilité"
+                  :value="product.real_quantity"
+                  icon="tracability"
+                />
+                <HeadInfo
+                  label="Réapprovisionner"
+                  :value="product.real_quantity"
+                  icon="replenishment"
+                />
+              </div>
+            </template>
+
+            <template #content>
+              <!-- name and photo input -->
+              <div class="mb-1 flex w-full flex-row items-end gap-x-12">
+                <div class="w-5/6">
+                  <span class="mb-2 block text-sm font-medium">
+                    Nom du produit
+                  </span>
+                  <div
+                    class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                  >
+                    {{ product.name }}
+                  </div>
+                </div>
+                <div
+                  class="dark:bg-kBgColor h-24 w-24 rounded-lg border border-gray-300 bg-kPrimaryColor/25"
+                >
+                  <span>photo</span>
+                </div>
+              </div>
+
+              <!-- other input -->
+              <div class="flex flex-row gap-x-32">
+                <!-- left part -->
+                <div class="flex w-full flex-col gap-y-3">
+                  <div>
+                    <span class="mb-2 block text-sm font-medium"> Type </span>
+
+                    <div
+                      class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    >
+                      {{ trueProductTypeLabel(product.prod_type) }}
+                    </div>
+                  </div>
+                  <div>
+                    <span class="mb-2 block text-sm font-medium">
+                      Categorie
+                    </span>
+                    <div
+                      class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    >
+                      {{ product.get_category }}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="mb-2 block text-sm font-medium"> Code </span>
+                    <div
+                      class="block h-7 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    >
+                      {{ product.code }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- right part -->
+                <div class="flex w-full flex-col gap-y-2">
+                  <div>
+                    <span class="mb-2 block text-sm font-medium">
+                      Unité de mesure
+                    </span>
+                    <div
+                      class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    >
+                      {{ product.uom }}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="mb-2 block text-sm font-medium">
+                      Société / Fournisseur
+                    </span>
+                    <div
+                      class="block h-7 w-full truncate rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                    >
+                      {{ product.providers }}
+                    </div>
+                  </div>
+
+                  <div class="flex flex-row gap-x-6 rounded-lg">
+                    <div class="block w-full py-1">
+                      <span class="mb-2 block truncate text-sm font-medium">
+                        Stock alerte
+                      </span>
+                      <div
+                        class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                      >
+                        {{ product.alert_stock }}
+                      </div>
+                    </div>
+                    <div class="block w-full py-1">
+                      <span class="mb-2 block truncate text-sm font-medium">
+                        Stock idéal
+                      </span>
+                      <div
+                        class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                      >
+                        {{ product.optimal_stock }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- bottom part -->
+              <div class="mb-3">
                 <span class="mb-2 block text-sm font-medium">
-                  Nom du produit
+                  Description
                 </span>
                 <div
-                  class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
+                  class="block h-28 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
                 >
-                  {{ product.name }}
+                  {{ product.description }}
                 </div>
               </div>
-              <div
-                class="dark:bg-kBgColor h-24 w-24 rounded-lg border border-gray-300 bg-kPrimaryColor/25"
-              >
-                <span>photo</span>
-              </div>
-            </div>
-
-            <!-- other input -->
-            <div class="flex flex-row gap-x-32">
-              <!-- left part -->
-              <div class="flex w-full flex-col gap-y-3">
-                <div>
-                  <span class="mb-2 block text-sm font-medium"> Type </span>
-
-                  <div
-                    class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                  >
-                    {{ trueProductTypeLabel(product.prod_type) }}
-                  </div>
-                </div>
-                <div>
-                  <span class="mb-2 block text-sm font-medium">
-                    Categorie
-                  </span>
-                  <div
-                    class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                  >
-                    {{ product.get_category }}
-                  </div>
-                </div>
-
-                <div>
-                  <span class="mb-2 block text-sm font-medium"> Code </span>
-                  <div
-                    class="block h-7 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                  >
-                    {{ product.code }}
-                  </div>
-                </div>
-              </div>
-
-              <!-- right part -->
-              <div class="flex w-full flex-col gap-y-2">
-                <div>
-                  <span class="mb-2 block text-sm font-medium">
-                    Unité de mesure
-                  </span>
-                  <div
-                    class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                  >
-                    {{ product.uom }}
-                  </div>
-                </div>
-
-                <div>
-                  <span class="mb-2 block text-sm font-medium">
-                    Société / Fournisseur
-                  </span>
-                  <div
-                    class="block h-7 w-full truncate rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                  >
-                    {{ product.providers }}
-                  </div>
-                </div>
-
-                <div class="flex flex-row gap-x-6 rounded-lg">
-                  <div class="block w-full py-1">
-                    <span class="mb-2 block truncate text-sm font-medium">
-                      Stock alerte
-                    </span>
-                    <div
-                      class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                    >
-                      {{ product.alert_stock }}
-                    </div>
-                  </div>
-                  <div class="block w-full py-1">
-                    <span class="mb-2 block truncate text-sm font-medium">
-                      Stock idéal
-                    </span>
-                    <div
-                      class="block w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-                    >
-                      {{ product.optimal_stock }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- bottom part -->
-            <div class="mb-3">
-              <span class="mb-2 block text-sm font-medium"> Description </span>
-              <div
-                class="block h-28 w-full rounded-lg border bg-kPrimaryColor/25 p-1 text-sm font-bold tracking-wide"
-              >
-                {{ product.description }}
-              </div>
-            </div>
-          </template>
-        </Card>
-      </div>
+            </template>
+          </Card>
+        </div>
+      </template>
     </div>
 
     <div class="basis-2/5">

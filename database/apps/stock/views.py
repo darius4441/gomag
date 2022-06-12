@@ -60,7 +60,7 @@ class POSViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.filter(isArchived=False).order_by("name")
-    pagination_class = ProductPagination
+    # pagination_class = ProductPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ("code", "name", "category__name", "providers")
 
@@ -86,8 +86,8 @@ class AlertProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.filter(
         isArchived=False, real_quantity__lte=F("alert_stock")
-    ).order_by("name")
-    pagination_class = ProductPagination
+    ).order_by("providers", "name")
+    # pagination_class = ProductPagination
 
 
 class InventoryViewSet(viewsets.ModelViewSet):

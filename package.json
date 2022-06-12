@@ -25,6 +25,8 @@
     "js-file-download": "^0.4.12",
     "moment": "^2.29.3",
     "pinia": "^2.0.13",
+    "primeicons": "^5.0.0",
+    "primevue": "^3.13.1",
     "uuid": "^8.3.2",
     "vee-validate": "^4.5.11",
     "vue": "^3.2.33",
