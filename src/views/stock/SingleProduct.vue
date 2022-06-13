@@ -1,31 +1,20 @@
 <script setup>
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  MenuButton,
-  MenuItem,
-} from "@headlessui/vue";
-import {
-  AdjustmentsIcon,
   ArrowDownIcon,
   CheckCircleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ChevronUpIcon,
 } from "@heroicons/vue/solid";
 import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
 import moment from "moment";
-import Card from "primevue/card";
-import { onMounted, ref } from "vue-demi";
+import { computed, onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
 import HeadInfo from "../../components/products/SingleProductTopInfo.vue";
 import BaseModal from "../../components/shared/modals/BaseModal.vue";
 import InitialQty from "../../components/shared/modals/products/initial-qty.vue";
 import MyButton from "../../components/shared/my-action.vue";
-import MyMenu from "../../components/shared/my-menu.vue";
 import { useProduct } from "../../composables";
 import { useTempStore } from "../../stores/temp";
 
@@ -38,11 +27,42 @@ const toast = useToast();
 //? declare vars / consts
 const productID = route.params.id;
 const { product, isLoading } = useProduct(productID);
+const optMenu = ref();
 
 const productHistory = ref([]);
 const isShowModal = ref(false);
 const isShowArchiveDeletionModal = ref(false);
 const archiveDeletionModalTitle = ref("");
+const breadcrumb = ref({
+  home: {
+    icon: "pi pi-home",
+    to: "/stock/products",
+  },
+  items: [{ label: computed(() => product.value.name) }],
+});
+const optionsMenu = ref([
+  {
+    label: "Options",
+
+    items: [
+      {
+        label: "Archiver",
+        icon: "pi pi-eye-slash",
+        command: () => enableArchiveDeletionModal("archiver"),
+      },
+      {
+        label: "Dupliquer",
+        icon: "pi pi-copy",
+        command: () => goToDuplicatePage(),
+      },
+      {
+        label: "Supprimer",
+        icon: "pi pi-trash",
+        command: () => enableArchiveDeletionModal("supprimer"),
+      },
+    ],
+  },
+]);
 
 //? declare functions
 function openModal() {
@@ -65,6 +85,10 @@ const trueProductTypeLabel = (label) => {
   }
 };
 
+const toggleOptMenu = (event) => {
+  optMenu.value.toggle(event);
+};
+
 async function getProductHistory() {
   await axios
     .get(`/api/v1/operations/?items__article=${productID}`)
@@ -77,7 +101,7 @@ async function getProductHistory() {
 }
 
 function goToEditPage() {
-  useLocalStorage("vueUseProduct", product.value);
+  useLocalStorage("vueUseEditProduct", product.value);
   router.push({ name: "EditProduct", params: { id: productID } });
 }
 
@@ -85,6 +109,15 @@ function goToDuplicatePage() {
   localStorage.setItem("vueUseDuplicateProduct", JSON.stringify(product.value));
 
   router.push({ name: "DuplicateProduct" });
+}
+
+function goToCreatePage() {
+  localStorage.setItem(
+    "vueUseLastProduct",
+    JSON.stringify({ id: product.value.id, name: product.value.name })
+  );
+
+  router.push({ name: "CreateProduct" });
 }
 
 function goToHistorySingleProduct(id, isNewTab) {
@@ -191,75 +224,46 @@ onMounted(async () => {
       <template v-if="!isLoading">
         <div class="flex flex-col">
           <!-- Header -->
-          <div
-            class="mx-auto flex w-full flex-row items-end justify-between px-4"
-          >
-            <div>
-              <div class="mb-1 flex flex-row items-end">
-                <router-link
-                  :to="{ name: 'Products' }"
-                  class="cursor-pointer text-kSecondaryColor hover:underline"
-                  >Articles</router-link
-                >
-                <span class="mx-1">/</span>
-                <span class="text-sm">{{}}</span>
-              </div>
-              <div class="flex flex-row items-center">
-                <MyButton label="Modifier" @click="goToEditPage" />
+          <div class="px-4">
+            <PrimeBreadcrumb
+              :home="breadcrumb.home"
+              :model="breadcrumb.items"
+            />
 
-                <MyButton label="Créer" to="CreateProduct" :isOutlined="true" />
-              </div>
-            </div>
+            <PrimeToolbar p-toolbar="">
+              <template #start>
+                <PrimeButton
+                  label="Modifier"
+                  class="p-button-info mr-4 p-button-sm"
+                  @click="goToEditPage"
+                />
 
-            <div class="flex flex-row items-center">
-              <MyMenu>
-                <template #menu_button>
-                  <MenuButton>
-                    <div
-                      class="rounded-lg px-2 py-1 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                    >
-                      <AdjustmentsIcon class="inline-block h-4 w-4" />
-                      <span class="ml-2">option</span>
-                    </div>
-                  </MenuButton>
-                </template>
+                <PrimeButton
+                  label="Créer"
+                  class="p-button-info p-button-sm p-button-outlined"
+                  @click="goToCreatePage"
+                />
+              </template>
 
-                <template #menu_content>
-                  <MenuItem>
-                    <button
-                      @click="enableArchiveDeletionModal('archiver')"
-                      class="mt-1 cursor-pointer rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                    >
-                      Archiver
-                    </button>
-                  </MenuItem>
-                  <MenuItem>
-                    <button
-                      @click="goToDuplicatePage"
-                      class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                    >
-                      Dupliquer
-                    </button>
-                  </MenuItem>
-                  <MenuItem>
-                    <button
-                      @click="enableArchiveDeletionModal('supprimer')"
-                      class="mt-1 rounded-lg px-3 hover:bg-kPrimaryColor hover:text-kWhiteColor"
-                    >
-                      Supprimer
-                    </button>
-                  </MenuItem>
-                </template>
-              </MyMenu>
-            </div>
-
-            <div class="flex flex-row items-center gap-x-4">
-              <span class="text-sm">num/len</span>
-              <div>
-                <ChevronLeftIcon class="inline-block h-5 w-5" />
-                <ChevronRightIcon class="inline-block h-5 w-5" />
-              </div>
-            </div>
+              <template #end>
+                <div>
+                  <PrimeButton
+                    type="button"
+                    icon="pi pi-sliders-h"
+                    class="p-button-help p-button-outlined p-button-sm"
+                    @click="toggleOptMenu"
+                    aria-haspopup="true"
+                    aria-controls="overlay_menu"
+                  />
+                  <PrimeMenu
+                    id="overlay_menu"
+                    ref="optMenu"
+                    :model="optionsMenu"
+                    :popup="true"
+                  />
+                </div>
+              </template>
+            </PrimeToolbar>
           </div>
 
           <!-- modals conditional display -->
@@ -300,7 +304,7 @@ onMounted(async () => {
             </template>
           </BaseModal>
 
-          <Card>
+          <PrimeCard>
             <template #title>
               <div class="mb-4 flex h-16 justify-end border-b-2">
                 <HeadInfo
@@ -437,7 +441,7 @@ onMounted(async () => {
                 </div>
               </div>
             </template>
-          </Card>
+          </PrimeCard>
         </div>
       </template>
     </div>

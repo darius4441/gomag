@@ -1,33 +1,42 @@
 <script setup>
-import { ref } from "vue-demi";
+import { AcademicCapIcon } from "@heroicons/vue/outline";
+import { toFormValidator } from "@vee-validate/zod";
+import axios from "axios";
+import { useField, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import * as zod from "zod";
 import { useAuthStore } from "../../stores/auth";
 import { useProductStore } from "../../stores/product";
-
-import axios from "axios";
-import { AcademicCapIcon } from "@heroicons/vue/outline";
-import { useToast } from "vue-toast-notification";
-
-import MyButton from "../../components/shared/my-action.vue";
 
 // access to store and router in composition mode
 const route = useRouter();
 const storeAuth = useAuthStore();
 const toast = useToast();
 const storeProduct = useProductStore();
-const loginFormDataRef = ref(null);
-const loginFormData = ref({});
 
-function submitForm() {
-  const node = loginFormDataRef.value.node;
+const validationSchema = toFormValidator(
+  zod.object({
+    email: zod.string().email("Email non valide"),
+    password: zod
+      .string({ required_error: "Champ requis" })
+      .min(6, { message: "Trop court" }),
+  })
+);
 
-  node.submit();
-}
+// Create a form context with the validation schema
+const { handleSubmit } = useForm({
+  validationSchema: validationSchema,
+});
 
-async function submitHandler() {
+const { value: email, errorMessage: emailError } = useField("email");
+const { value: password, errorMessage: passwordError } = useField("password");
+
+const submitForm = handleSubmit(async () => {
+  const formData = { email: email.value, password: password.value };
   try {
     await axios
-      .post("/api/v1/token/login/", loginFormData.value)
+      .post("/api/v1/token/login/", formData)
       .then((response) => {
         const token = response.data.auth_token;
 
@@ -83,7 +92,7 @@ async function submitHandler() {
       position: "top-right",
     });
   }
-}
+});
 </script>
 
 <template>
@@ -97,35 +106,41 @@ async function submitHandler() {
       <h3 class="text-center text-2xl font-bold">
         Connecter vous à votre compte
       </h3>
-      <FormKit
-        type="form"
-        ref="loginFormDataRef"
-        v-model="loginFormData"
-        :actions="false"
-        @submit="submitHandler"
-      >
-        <div class="mt-4">
-          <FormKit
+      <form>
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
             type="email"
-            name="email"
-            placeholder="Email"
-            validation="required|email"
+            id="email"
+            v-model:model-value="email"
+            class="w-full"
+            :class="{ 'p-invalid': emailError }"
           />
-        </div>
 
-        <div class="mt-4">
-          <FormKit
+          <label for="email" class="text-md text-slate-700">Email</label>
+        </span>
+
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
             type="password"
-            name="password"
-            placeholder="Mot de passe"
-            validation="required"
+            id="password"
+            v-model:model-value="password"
             @keydown.enter="submitForm"
+            class="w-full"
+            :class="{ 'p-invalid': passwordError }"
           />
-        </div>
+
+          <label for="password" class="text-md text-slate-700"
+            >Mot de passe</label
+          >
+        </span>
 
         <!-- button group -->
         <div class="mt-4 flex items-baseline justify-between">
-          <MyButton label="Se connecter" @click="submitForm" />
+          <PrimeButton
+            label="Se connecter"
+            @click="submitForm"
+            class="p-button-info"
+          />
 
           <div class="flex flex-col">
             <RouterLink
@@ -143,7 +158,7 @@ async function submitHandler() {
             </RouterLink>
           </div>
         </div>
-      </FormKit>
+      </form>
     </div>
   </div>
 </template>

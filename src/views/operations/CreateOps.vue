@@ -2,8 +2,6 @@
 import { PlusCircleIcon, RefreshIcon, XIcon } from "@heroicons/vue/solid";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
-import Calendar from "primevue/calendar";
-import Dropdown from "primevue/dropdown";
 import { useField, useFieldArray, useForm } from "vee-validate";
 import { onMounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
@@ -264,7 +262,7 @@ onMounted(async () => {
                 class="mx-auto flex flex-row justify-between gap-4 rounded-lg border-2 border-kPrimaryColor px-4 py-7 dark:border-kWhiteColor"
               >
                 <span class="p-float-label text-md text-slate-700">
-                  <Dropdown
+                  <PrimeDropdown
                     id="contact"
                     v-model="contact"
                     :options="contactOptions"
@@ -281,7 +279,7 @@ onMounted(async () => {
                 </span>
 
                 <span class="p-float-label text-md text-slate-700">
-                  <Dropdown
+                  <PrimeDropdown
                     id="m_type"
                     v-model="m_type"
                     :options="typeList"
@@ -299,7 +297,7 @@ onMounted(async () => {
 
                 <div>
                   <span class="p-float-label text-md text-slate-700">
-                    <Calendar
+                    <PrimeCalendar
                       id="date"
                       v-model="date"
                       class="w-32"

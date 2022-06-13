@@ -3,7 +3,6 @@ import { MenuButton, MenuItem } from "@headlessui/vue";
 import {
   BanIcon,
   BeakerIcon,
-  BellIcon,
   CogIcon,
   LibraryIcon,
   MenuAlt4Icon,
@@ -174,16 +173,12 @@ const sidebarItem = ref([
       <div
         class="hidden list-none flex-row items-center gap-x-4 sm:flex sm:flex-row"
       >
-        <div class="relative">
-          <BellIcon
-            class="h-5 w-5 cursor-pointer duration-300 ease-in-out hover:text-kPrimaryColor dark:text-kWhiteColor dark:hover:text-kPrimaryColor"
-          />
+        <i
+          class="pi pi-bell p-text-secondary"
+          style="font-size: 2rem"
+          v-badge.danger
+        ></i>
 
-          <span
-            class="absolute top-0 right-1 h-4 w-4 rounded-full bg-red-600 text-center text-xs font-semibold text-white"
-            >1</span
-          >
-        </div>
         <ToggleThemeBtn />
         <!-- User -->
         <UserProfile />

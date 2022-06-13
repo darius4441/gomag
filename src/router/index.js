@@ -214,7 +214,7 @@ const routes = [
     },
   },
   {
-    path: "/stock/products/create",
+    path: "/stock/products/duplicate",
     name: "DuplicateProduct",
     component: () => import("../views/stock/duplicate-product-screen.vue"),
     meta: {

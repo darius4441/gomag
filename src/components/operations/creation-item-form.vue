@@ -1,6 +1,4 @@
 <script setup>
-import AutoComplete from "primevue/autocomplete";
-import InputNumber from "primevue/inputnumber";
 import { useField } from "vee-validate";
 import { computed, ref } from "vue-demi";
 
@@ -44,7 +42,7 @@ function updateItemData(item) {
   </td>
 
   <th class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs">
-    <AutoComplete
+    <PrimeAutoComplete
       v-model:model-value="article"
       :suggestions="filteredProducts"
       @complete="searchProducts($event)"
@@ -72,11 +70,11 @@ function updateItemData(item) {
           </span>
         </div>
       </template>
-    </AutoComplete>
+    </PrimeAutoComplete>
   </th>
 
   <td class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs">
-    <InputNumber
+    <PrimeInputNumber
       v-model:model-value="quantity"
       mode="decimal"
       :min="1"
@@ -99,7 +97,7 @@ function updateItemData(item) {
     v-if="props.checkType == 'in'"
     class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs"
   >
-    <InputNumber
+    <PrimeInputNumber
       v-model:model-value="cost"
       mode="decimal"
       :min="5"

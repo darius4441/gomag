@@ -1,40 +1,34 @@
 <script setup>
-import { useRouter, RouterLink } from "vue-router";
-import axios from "axios";
-import * as zod from "zod";
 import { AcademicCapIcon } from "@heroicons/vue/outline";
-import { useForm } from "vee-validate";
 import { toFormValidator } from "@vee-validate/zod";
-
-import MyInput from "../../components/shared/forms/BaseInput.vue";
-import MyButton from "../../components/shared/my-action.vue";
+import axios from "axios";
+import { useField, useForm } from "vee-validate";
+import { ref } from "vue-demi";
+import { RouterLink, useRouter } from "vue-router";
+import * as zod from "zod";
 
 // access to store and router in composition mode
 const route = useRouter();
 
+const isLoading = ref(false);
+
 const validationSchema = toFormValidator(
   zod.object({
-    first_name: zod.string().nonempty("champ obligatoire"),
-    last_name: zod.string().nonempty("champ obligatoire"),
-    phone: zod.string().nonempty("champ obligatoire").length(10),
-    username: zod.string().nonempty("champ obligatoire"),
-    email: zod
-      .string()
-      .nonempty("Champ requis")
-      .email({ message: "Email non valide" }),
-
-    passwordForm: zod
-      .object({
-        password: zod
-          .string()
-          .nonempty("Champ requis")
-          .min(6, { message: "Trop court" }),
-        confirm: zod.string(),
-      })
-      .refine((data) => data.password === data.confirm, {
-        message: "Le mot de passe ne correspond pas !",
-        path: ["confirm"],
-      }),
+    first_name: zod.string("champ obligatoire"),
+    last_name: zod.string("champ obligatoire"),
+    phone: zod.string("champ obligatoire").length(10),
+    username: zod.string("champ obligatoire"),
+    email: zod.string("Champ requis").email({ message: "Email non valide" }),
+    password: zod.string("Champ requis").min(6, { message: "Trop court" }),
+    // passwordForm: zod
+    //   .object({
+    //     password: zod.string("Champ requis").min(6, { message: "Trop court" }),
+    //     confirm: zod.string(),
+    //   })
+    //   .refine((data) => data.password === data.confirm, {
+    //     message: "Le mot de passe ne correspond pas !",
+    //     path: ["confirm"],
+    //   }),
   })
 );
 
@@ -43,22 +37,45 @@ const { handleSubmit, resetForm } = useForm({
   validationSchema: validationSchema,
 });
 
+const { value: first_name, errorMessage: f_nameError } = useField("first_name");
+const { value: last_name, errorMessage: l_nameError } = useField("last_name");
+const { value: phone, errorMessage: phoneError } = useField("phone");
+const { value: username, errorMessage: usernameError } = useField("username");
+const { value: email, errorMessage: emailError } = useField("email");
+const { value: password, errorMessage: passwordError } = useField("password");
+
 // Create Register function
-const onSubmit = handleSubmit(async (values) => {
-  try {
-    await axios
-      .post("/api/v1/users/", values)
-      .then(() => {
-        resetForm();
-        route.push({ name: "Login" });
-      })
-      .catch((error) => {
-        throw error;
+const submitForm =
+  isLoading.value == true
+    ? null
+    : handleSubmit(async () => {
+        isLoading.value == true;
+
+        const formData = {
+          first_name: first_name.value,
+          last_name: last_name.value,
+          phone: phone.value,
+          username: username.value,
+          email: email.value,
+          password: password.value,
+        };
+
+        try {
+          await axios
+            .post("/api/v1/usssaers/", formData)
+            .then(() => {
+              resetForm();
+              route.push({ name: "Login" });
+            })
+            .catch((error) => {
+              throw error;
+            });
+        } catch (err) {
+          console.log(JSON.stringify(err));
+        }
+
+        isLoading.value == false;
       });
-  } catch (err) {
-    console.log(JSON.stringify(err));
-  }
-});
 </script>
 
 <template>
@@ -68,68 +85,113 @@ const onSubmit = handleSubmit(async (values) => {
         <AcademicCapIcon class="h-20 w-20 text-blue-600" />
       </div>
       <h3 class="text-center text-2xl font-bold">Créer un nouveau compte</h3>
-      <form @submit.prevent="onSubmit">
+      <form>
         <div class="flex flex-row items-center justify-between gap-x-3">
-          <!-- firstname field -->
-          <MyInput
-            type="text"
-            placeholder="Nom"
-            name="first_name"
-            wrapperclass="mt-4"
-          />
+          <span class="p-float-label mt-10 text-md text-slate-700">
+            <PrimeInputText
+              type="text"
+              id="first-name"
+              v-model:model-value="first_name"
+              class="w-full"
+              :class="{ 'p-invalid': f_nameError }"
+            />
 
-          <!-- lastname field -->
-          <MyInput
-            type="text"
-            placeholder="Prenom"
-            name="last_name"
-            wrapperclass="mt-4"
-          />
+            <label for="first-name" class="text-md text-slate-700">Nom</label>
+          </span>
+
+          <span class="p-float-label mt-10 text-md text-slate-700">
+            <PrimeInputText
+              type="text"
+              id="last-name"
+              v-model:model-value="last_name"
+              class="w-full"
+              :class="{ 'p-invalid': l_nameError }"
+            />
+
+            <label for="last-name" class="text-md text-slate-700">Prenom</label>
+          </span>
         </div>
 
-        <!-- phone number field -->
-        <MyInput
-          type="text"
-          placeholder="Numero de téléphone"
-          name="phone"
-          wrapperclass="mt-4"
-        />
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputMask
+            type="text"
+            id="phone"
+            :unmask="true"
+            mask="99 99 99 9999"
+            autoClear
+            v-model:model-value="phone"
+            class="w-full"
+            :class="{ 'p-invalid': phoneError }"
+          />
 
-        <!-- username field -->
-        <MyInput
-          type="text"
-          placeholder="Identifiant"
-          name="username"
-          wrapperclass="mt-4"
-        />
+          <label for="phone" class="text-md text-slate-700"
+            >Numero de téléphone</label
+          >
+        </span>
 
-        <!-- email field -->
-        <MyInput
-          type="email"
-          placeholder="Email"
-          name="email"
-          wrapperclass="mt-4"
-        />
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
+            type="text"
+            id="username"
+            v-model:model-value="username"
+            class="w-full"
+            :class="{ 'p-invalid': usernameError }"
+          />
 
-        <!-- password field -->
-        <MyInput
-          type="password"
-          placeholder="Mot de passe"
-          name="password"
-          wrapperclass="mt-4"
-        />
+          <label for="username" class="text-md text-slate-700"
+            >Identifiant</label
+          >
+        </span>
 
-        <!-- confirmPassword field -->
-        <MyInput
-          type="password"
-          placeholder="Repeter le mot de passe"
-          name="confirm_password"
-          wrapperclass="mt-4"
-        />
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
+            type="email"
+            id="email"
+            v-model:model-value="email"
+            class="w-full"
+            :class="{ 'p-invalid': emailError }"
+          />
 
-        <!-- button group -->
+          <label for="email" class="text-md text-slate-700">Email</label>
+        </span>
+
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
+            type="password"
+            id="password"
+            v-model:model-value="password"
+            class="w-full"
+            :class="{ 'p-invalid': passwordError }"
+          />
+
+          <label for="password" class="text-md text-slate-700"
+            >Mot de passe</label
+          >
+        </span>
+
+        <!-- 
+        <span class="p-float-label mt-10 text-md text-slate-700">
+          <PrimeInputText
+            type="password"
+            id="confirm-password"
+            v-model:model-value="confirmPassword"
+            class="w-full"
+            :class="{ 'p-invalid': confirmPasswordError }"
+          />
+
+          <label for="confirm-password" class="text-md text-slate-700"
+            >Confirmer le mot de passe</label
+          >
+        </span>
+ -->
+
         <div class="mt-4 flex items-baseline justify-between">
-          <MyButton type="submit" label="S'inscrire" />
+          <PrimeButton
+            label="S'inscrire"
+            @click="submitForm"
+            class="p-button-info"
+          />
+
           <RouterLink
             :to="{ name: 'Login' }"
             class="text-sm text-blue-600 hover:underline"
