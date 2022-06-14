@@ -8,9 +8,9 @@ import {
 import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
 import moment from "moment";
+import { useToast } from "primevue/usetoast";
 import { computed, onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import { useToast } from "vue-toast-notification";
 import HeadInfo from "../../components/products/SingleProductTopInfo.vue";
 import BaseModal from "../../components/shared/modals/BaseModal.vue";
 import InitialQty from "../../components/shared/modals/products/initial-qty.vue";
@@ -26,7 +26,7 @@ const toast = useToast();
 
 //? declare vars / consts
 const productID = route.params.id;
-const { product, isLoading } = useProduct(productID);
+const { product, isLoading, refetch } = useProduct(productID);
 const optMenu = ref();
 
 const productHistory = ref([]);
@@ -93,7 +93,7 @@ async function getProductHistory() {
   await axios
     .get(`/api/v1/operations/?items__article=${productID}`)
     .then((response) => {
-      productHistory.value = response.data.results;
+      productHistory.value = response.data;
     })
     .catch((error) => {
       console.log(JSON.stringify(error));
@@ -138,8 +138,11 @@ async function archiveProduct() {
     await axios
       .patch(`api/v1/stock/products/${productID}/`, { isArchived: true })
       .then(() => {
-        toast.success("Article archivé avec succès", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Archivage",
+          detail: "Article archivé avec succès",
+          life: 3000,
         });
         router.push({ name: "Products" });
       })
@@ -159,8 +162,11 @@ async function archiveProduct() {
         break;
     }
 
-    toast.error(displayMessage, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: displayMessage,
+      life: 3000,
     });
   }
 }
@@ -170,9 +176,13 @@ async function deleteProduct() {
     await axios
       .delete(`api/v1/stock/products/${productID}/`)
       .then(() => {
-        toast.success("Article supprimé avec succès", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Suppression",
+          detail: "Article supprimé avec succès",
+          life: 3000,
         });
+
         router.push({ name: "Products" });
       })
       .catch((e) => {
@@ -196,8 +206,11 @@ async function deleteProduct() {
         break;
     }
 
-    toast.error(displayMessage, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: displayMessage,
+      life: 3000,
     });
   }
 }
@@ -270,7 +283,7 @@ onMounted(async () => {
           <InitialQty
             :isOpen="isShowModal"
             :product="product"
-            @refreshProduct="getProduct()"
+            @refreshProduct="refetch"
             @closeModal="isShowModal = false"
           />
 

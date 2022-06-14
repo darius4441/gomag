@@ -1,17 +1,14 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useRouter } from "vue-router";
-import { useToast } from "vue-toast-notification";
-import { toFormValidator } from "@vee-validate/zod";
-import { useForm, useFieldArray } from "vee-validate";
 import { TrashIcon } from "@heroicons/vue/solid";
-
-import axios from "axios";
+import { toFormValidator } from "@vee-validate/zod";
+import { useToast } from "primevue/usetoast";
+import { useFieldArray, useForm } from "vee-validate";
+import { onMounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
 import * as zod from "zod";
-
 import MyInput from "../../components/shared/forms/BaseInput.vue";
 import MyButton from "../../components/shared/my-action.vue";
+import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
@@ -132,8 +129,11 @@ function onInvalidSubmit({ errors }) {
   Object.entries(errors).forEach((item) => {
     let itemMsg = item[1] == "Required" ? "obligatoire" : item[1];
 
-    toast.error(itemMsg, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Donnée invalide",
+      detail: itemMsg,
+      life: 3000,
     });
   });
 }

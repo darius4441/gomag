@@ -1,17 +1,15 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useRouter } from "vue-router";
-
-import axios from "axios";
-import * as zod from "zod";
 import { toFormValidator } from "@vee-validate/zod";
+import axios from "axios";
+import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
-import { useToast } from "vue-toast-notification";
-
-import MyButton from "../../components/shared/my-action.vue";
-import MyInput from "../../components/shared/forms/BaseInput.vue";
+import { onMounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
+import * as zod from "zod";
 import Card from "../../components/shared/card-component.vue";
+import MyInput from "../../components/shared/forms/BaseInput.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
@@ -59,8 +57,11 @@ const { handleSubmit, resetForm } = useForm({
 // declare functions
 function onInvalidSubmit({ errors }) {
   Object.entries(errors).forEach((item) => {
-    toast.error(item[1], {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Donnée invalide",
+      detail: item[1],
+      life: 3000,
     });
   });
 }
@@ -72,8 +73,11 @@ const onSubmit = handleSubmit(async (values) => {
       .then((res) => {
         resetForm();
 
-        toast.success("Contact créer avec succes", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Création",
+          detail: "Contact créer avec succès",
+          life: 3000,
         });
 
         router.push({
@@ -85,8 +89,11 @@ const onSubmit = handleSubmit(async (values) => {
         throw e;
       });
   } catch (error) {
-    toast.error(error.message, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: JSON.stringify(error.message),
+      life: 3000,
     });
   }
 }, onInvalidSubmit);

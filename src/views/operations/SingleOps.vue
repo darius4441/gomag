@@ -1,19 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useOperationStore } from "../../stores/operation";
-import { useRoute } from "vue-router";
-
+// import fileDownload from "js-file-download";
+import { DownloadIcon, RefreshIcon } from "@heroicons/vue/solid";
 import axios from "axios";
 import moment from "moment";
-import fileDownload from "js-file-download";
-import { DownloadIcon, RefreshIcon } from "@heroicons/vue/solid";
-
+import { onMounted, ref } from "vue-demi";
+import { useRoute } from "vue-router";
 import Card from "../../components/shared/card-component.vue";
-import Table from "../../components/shared/table-component.vue";
 import MyButton from "../../components/shared/my-action.vue";
+import Table from "../../components/shared/table-component.vue";
 import router from "../../router";
+import { useOperationStore } from "../../stores/operation";
 import { useProductStore } from "../../stores/product";
+import { useTempStore } from "../../stores/temp";
 
 const pageStore = useTempStore();
 const productStore = useProductStore();
@@ -88,7 +86,7 @@ async function downloadPDF() {
       responseType: "blob",
     })
     .then((res) => {
-      fileDownload(res.data, `operation_${operationID}.pdf`);
+      // fileDownload(res.data, `operation_${operationID}.pdf`);
     })
     .catch((err) => {
       console.log(err);

@@ -1,6 +1,5 @@
 <script setup>
 import articlePhoto from "@/assets/images/default/article-default-img.png";
-import { reset } from "@formkit/core";
 import {
   Disclosure,
   DisclosureButton,
@@ -8,12 +7,15 @@ import {
   MenuButton,
   MenuItem,
 } from "@headlessui/vue";
+import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import { useField, useForm } from "vee-validate";
 import { computed, onMounted, ref } from "vue-demi";
-import MyButton from "../../components/shared/my-action.vue";
-import { useTempStore } from "../../stores/temp";
-import MyMenu from "../../components/shared/my-menu.vue";
+import * as zod from "zod";
 import ConfirmOrderModal from "../../components/pos/confirm_order_modal.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import MyMenu from "../../components/shared/my-menu.vue";
+import { useTempStore } from "../../stores/temp";
 // ? Define composables
 const pageStore = useTempStore();
 
@@ -22,8 +24,6 @@ const product = ref({});
 const products = ref([]);
 const search = ref("");
 const order = ref([]);
-const addItemFormRef = ref(null);
-const addItemFormData = ref({});
 const isConfirmOrderModal = ref(false);
 
 const discount = ref("");
@@ -38,18 +38,61 @@ const totalAmount = computed(
   () => subTotal.value - Number(discount.value ?? 0)
 );
 
+const validationSchema = toFormValidator(
+  zod.object({
+    id: zod.number({
+      required_error: "cet article n'est pas valable",
+    }),
+
+    article: zod.string({
+      required_error: "article est obligatoire",
+    }),
+
+    unit: zod.string({
+      required_error: "unité de mesure est obligatoire",
+    }),
+
+    quantity: zod
+      .number({
+        required_error: "la quantité est obligatoire",
+        invalid_type_error: "la quantité doit etre un nombre",
+      })
+      .gte(1, { message: "la quantité doit avoir minimum 1" }),
+
+    unit_price: zod
+      .number({
+        required_error: "prix de vente est obligatoire",
+        invalid_type_error: "prix de vente doit etre un nombre",
+      })
+      .gte(0, { message: "prix de vente doit avoir minimum 0" }),
+  })
+);
+
+// Create a form context with the validation schema
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: validationSchema,
+
+  initialValues: {
+    quantity: 1,
+  },
+});
+
+const { value: id } = useField("id");
+const { value: article, errorMessage: articleError } = useField("article");
+const { value: unit, errorMessage: unitError } = useField("unit");
+const { value: quantity, errorMessage: quantityError } = useField("quantity");
+const { value: unit_price, errorMessage: unit_priceError } =
+  useField("unit_price");
+
 // ? Declare functions
-function addItem() {
-  const node = addItemFormRef.value.node;
 
-  node.submit();
-}
+const addItem = handleSubmit((values) => {
+  delete values.article;
 
-function addItemHandler() {
-  order.value.push(addItemFormData.value);
+  order.value.push(values);
 
-  reset("addItemFormID");
-}
+  resetForm();
+});
 
 async function getProducts() {
   await axios
@@ -117,11 +160,11 @@ onMounted(async () => {
               @click="getProduct(item.id)"
               @dblclick="
                 () => {
-                  addItemFormData.articleID = item.id;
-                  addItemFormData.article = item.name;
-                  addItemFormData.quantity = 1;
-                  addItemFormData.unit = item.uom;
-                  addItemFormData.unit_price = item.unit_price;
+                  id = item.id;
+                  article = item.name;
+                  quantity = 1;
+                  unit = item.uom;
+                  unit_price = item.unit_price;
                 }
               "
               class="cursor-pointer w-40 sm:w-36 md:w-32 lg:w-36 rounded bg-white shadow-lg duration-300 hover:ring-2 ring-kPrimaryColor"
@@ -171,66 +214,94 @@ onMounted(async () => {
       <div
         class="absolute bottom-0 flex flex-col items-center p-1 shadow shadow-indigo-400"
       >
-        <FormKit
-          ref="addItemFormRef"
-          id="addItemFormID"
-          v-model="addItemFormData"
-          type="form"
-          :actions="false"
-          @submit="addItemHandler"
-        >
-          <div
-            class="flex flex-row items-center justify-between rounded-lg bg-kPrimaryColor/50 py-2 px-4"
-          >
-            <div class="flex space-x-4">
-              <FormKit
-                type="text"
-                label="Article"
-                name="article"
-                validation="required"
-              />
+        <form class="w-full">
+          <div class="grid grid-cols-6 gap-x-2">
+            <div class="col-span-2">
+              <span class="p-float-label mt-6 text-md text-slate-700">
+                <PrimeInputText
+                  type="text"
+                  id="article"
+                  v-model:model-value="article"
+                  class="w-full"
+                  :class="{ 'p-invalid': articleError }"
+                />
 
-              <FormKit
-                type="number"
-                label="Quantité"
-                name="quantity"
-                validation="required|min(1)"
-              />
-
-              <FormKit
-                type="text"
-                label="Unité"
-                name="unit"
-                validation="required"
-              />
-
-              <FormKit
-                type="number"
-                label="Prix u."
-                name="unit_price"
-                validation="required|min(5)"
-              />
+                <label for="article" class="text-md text-slate-700"
+                  >Article</label
+                >
+              </span>
             </div>
 
-            <MyButton
-              type="button"
-              @click="addItem"
-              :isOutlined="true"
-              label="Ajouter"
-              class="ml-4"
-            />
+            <div class="col-span-1">
+              <span class="p-float-label mt-6 text-md text-slate-700">
+                <PrimeInputNumber
+                  id="quantity"
+                  v-model:model-value="quantity"
+                  class="w-full"
+                  inputClass="w-full"
+                  :min="1"
+                  :class="{ 'p-invalid': quantityError }"
+                />
+
+                <label for="quantity" class="text-md text-slate-700"
+                  >Quantité</label
+                >
+              </span>
+            </div>
+
+            <div class="col-span-1">
+              <span class="p-float-label mt-6 text-md text-slate-700">
+                <PrimeInputText
+                  type="text"
+                  id="unit"
+                  v-model:model-value="unit"
+                  class="w-full"
+                  :class="{ 'p-invalid': unitError }"
+                />
+
+                <label for="unit" class="text-md text-slate-700">Unité</label>
+              </span>
+            </div>
+
+            <div class="col-span-1">
+              <span class="p-float-label mt-6 text-md text-slate-700">
+                <PrimeInputNumber
+                  id="unit_price"
+                  v-model:model-value="unit_price"
+                  class="w-full"
+                  inputClass="w-full"
+                  :min="1"
+                  :class="{ 'p-invalid': unit_priceError }"
+                />
+
+                <label for="unit_price" class="text-md text-slate-700"
+                  >Prix unitaire</label
+                >
+              </span>
+            </div>
+
+            <div class="h-10 mt-6">
+              <PrimeButton
+                label="Ajouter"
+                @click="addItem"
+                class="p-button-info p-button-sm p-button-outlined"
+              />
+            </div>
           </div>
-        </FormKit>
+        </form>
 
         <div
-          class="flex w-3/5 justify-center rounded-b-lg bg-kPrimaryColor/50 pt-4 shadow-inner shadow-indigo-300"
+          class="flex w-3/5 justify-center border-2 rounded-b-lg border-kPrimaryColor/50 py-2 mt-2"
         >
-          <FormKit
-            type="search"
-            v-model="search"
-            placeholder="Trouver ..."
-            @input="getProducts()"
-          />
+          <span class="p-input-icon-left">
+            <i class="pi pi-search" />
+            <PrimeInputText
+              type="text"
+              v-model="search"
+              placeholder="Trouver ..."
+              @input="getProducts()"
+            />
+          </span>
         </div>
       </div>
     </div>

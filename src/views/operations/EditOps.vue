@@ -1,19 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useTempStore } from "../../stores/temp";
-import { useRouter } from "vue-router";
-
-import axios from "axios";
-import * as zod from "zod";
+import { RefreshIcon, XIcon } from "@heroicons/vue/solid";
 import { toFormValidator } from "@vee-validate/zod";
-import { useForm, useFieldArray } from "vee-validate";
-import { useToast } from "vue-toast-notification";
-import { XIcon, RefreshIcon } from "@heroicons/vue/solid";
-
-import MyInput from "../../components/shared/forms/BaseInput.vue";
-import Card from "../../components/shared/card-component.vue";
-import MyButton from "../../components/shared/my-action.vue";
+import axios from "axios";
+import { useToast } from "primevue/usetoast";
+import { useFieldArray, useForm } from "vee-validate";
+import { onMounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
+import * as zod from "zod";
 import NestedArray from "../../components/operations/creation-item-form.vue";
+import Card from "../../components/shared/card-component.vue";
+import MyInput from "../../components/shared/forms/BaseInput.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
@@ -118,7 +116,6 @@ const validationSchema = toFormValidator(
             invalid_type_error: "la quantité doit etre un nombre réel positif",
           })
           .gte(1),
-        // unit: zod.string(),
       })
       .array()
       .nonempty({
@@ -171,7 +168,12 @@ async function getContact() {
       }
     })
     .catch((error) => {
-      toast.error(JSON.stringify(error));
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(error),
+        life: 3000,
+      });
     });
 }
 
@@ -181,16 +183,22 @@ function onInvalidSubmit({ errors }) {
     if (item[0].includes("items")) {
       if (i != 0) {
         i--;
-        toast.error(
-          "Veillez ajouter un article avec une quantité de 1 au minimum",
-          {
-            position: "top-right",
-          }
-        );
+
+        toast.add({
+          severity: "error",
+          summary: "Donnée invalide",
+          detail:
+            "Veillez ajouter un article avec une quantité de 1 au minimum",
+
+          life: 3000,
+        });
       }
     } else {
-      toast.error(`Le champs ${item[0]} est ${item[1]}`, {
-        position: "top-right",
+      toast.add({
+        severity: "error",
+        summary: "Donnée invalide",
+        detail: `Le champs ${item[0]} est ${item[1]}`,
+        life: 3000,
       });
     }
   });
@@ -210,17 +218,21 @@ const onSubmit = handleSubmit(async (values) => {
   await axios
     .put(`/api/v1/operations/${operation.id}/`, values)
     .then(() => {
-      toast.success(
-        `La facture dpt1/${operation.m_type}${operation.id} a été modifié avec succes`,
-        {
-          position: "top-right",
-        }
-      );
+      toast.add({
+        severity: "error",
+        summary: "Donnée invalide",
+        detail: `La facture dpt1/${operation.m_type}${operation.id} a été modifié avec succès`,
+        life: 3000,
+      });
+
       router.push({ name: "SingleOps", params: { id: operation.id } });
     })
     .catch((error) => {
-      toast.error(error.message, {
-        position: "top-right",
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(error.message),
+        life: 3000,
       });
     });
 

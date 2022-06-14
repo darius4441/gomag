@@ -11,18 +11,13 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@formkit/auto-animate": "^1.0.0-beta.1",
-    "@formkit/themes": "^1.0.0-beta.8",
-    "@formkit/vue": "^1.0.0-beta.8",
     "@headlessui/vue": "^1.6.1",
     "@heroicons/vue": "^1.0.6",
-    "@suadelabs/vue3-multiselect": "^1.0.2",
     "@vee-validate/zod": "^4.5.11",
     "@vueuse/core": "^8.4.1",
     "@vueuse/motion": "^2.0.0-beta.12",
     "axios": "^0.27.2",
     "chart.js": "^3.7.1",
-    "js-file-download": "^0.4.12",
     "moment": "^2.29.3",
     "pinia": "^2.0.13",
     "primeicons": "^5.0.0",
@@ -33,7 +28,6 @@
     "vue-chart-3": "^3.1.8",
     "vue-query": "^1.25.0",
     "vue-router": "^4.0.14",
-    "vue-toast-notification": "^3.0.2",
     "zod": "^3.14.4"
   },
   "devDependencies": {

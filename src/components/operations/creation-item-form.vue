@@ -8,7 +8,7 @@ const props = defineProps({
   products: { type: Array, default: () => [] },
 });
 
-const emits = defineEmits(["addItem"]);
+const emits = defineEmits(["addItem", "saveOps"]);
 
 const { value: article } = useField(`items[${props.idx}].article`);
 const { value: quantity } = useField(`items[${props.idx}].quantity`);
@@ -43,12 +43,13 @@ function updateItemData(item) {
 
   <th class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs">
     <PrimeAutoComplete
+      field="name"
+      autoHighlight
+      forceSelection
+      dropdownMode="current"
       v-model:model-value="article"
       :suggestions="filteredProducts"
       @complete="searchProducts($event)"
-      field="name"
-      :dropdown="true"
-      forceSelection
       @item-select="
         updateItemData({
           uom: $event.value.uom,
@@ -75,21 +76,21 @@ function updateItemData(item) {
 
   <td class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs">
     <PrimeInputNumber
-      v-model:model-value="quantity"
-      mode="decimal"
       :min="1"
+      mode="decimal"
       class="w-full"
+      v-model:model-value="quantity"
       inputClass="w-full text-right"
-      @keydown.enter="emits('addItem')"
+      @keyup.enter="emits('addItem')"
     />
   </td>
 
   <td class="whitespace-nowrap py-1 px-1.5 text-center align-middle text-xs">
     <PrimeInputText
+      disabled
       type="text"
       v-model:model-value="unit"
       class="w-full text-center"
-      disabled
     />
   </td>
 
@@ -98,9 +99,9 @@ function updateItemData(item) {
     class="whitespace-nowrap py-1 px-1.5 text-left align-middle text-xs"
   >
     <PrimeInputNumber
-      v-model:model-value="cost"
-      mode="decimal"
       :min="5"
+      mode="decimal"
+      v-model:model-value="cost"
       class="w-full"
       inputClass="w-full text-right"
     />

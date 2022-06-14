@@ -2,9 +2,9 @@
 import { AcademicCapIcon } from "@heroicons/vue/outline";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import { useToast } from "primevue/usetoast";
 import { useField, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
-import { useToast } from "vue-toast-notification";
 import * as zod from "zod";
 import { useAuthStore } from "../../stores/auth";
 import { useProductStore } from "../../stores/product";
@@ -18,9 +18,7 @@ const storeProduct = useProductStore();
 const validationSchema = toFormValidator(
   zod.object({
     email: zod.string().email("Email non valide"),
-    password: zod
-      .string({ required_error: "Champ requis" })
-      .min(6, { message: "Trop court" }),
+    password: zod.string({ required_error: "Champ requis" }),
   })
 );
 
@@ -49,14 +47,27 @@ const submitForm = handleSubmit(async () => {
       .catch((error) => {
         if (error.response) {
           for (const property in error.response.data) {
-            toast.error(`${error.response.data[property]}`, {
-              position: "top-right",
+            toast.add({
+              severity: "error",
+              summary: "Une erreur s'est produite",
+              detail: `${error.response.data[property]}`,
+              life: 3000,
             });
           }
         } else if (error.message) {
-          toast.error(JSON.stringify(error.message), { position: "top-right" });
+          toast.add({
+            severity: "error",
+            summary: "Une erreur s'est produite",
+            detail: JSON.stringify(error.message),
+            life: 3000,
+          });
         } else {
-          toast.error(JSON.stringify(error), { position: "top-right" });
+          toast.add({
+            severity: "error",
+            summary: "Une erreur s'est produite",
+            detail: JSON.stringify(error),
+            life: 3000,
+          });
         }
       });
 
@@ -85,11 +96,19 @@ const submitForm = handleSubmit(async () => {
         route.push({ name: "Dashboard" });
       })
       .catch((error) => {
-        toast.error(JSON.stringify(error.message), { position: "top-right" });
+        toast.add({
+          severity: "error",
+          summary: "Une erreur s'est produite",
+          detail: JSON.stringify(error.message),
+          life: 3000,
+        });
       });
   } catch (err) {
-    toast.error("err: " + err + "\nerrors :" + err, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: "err: " + err + "\nerrors :" + err,
+      life: 3000,
     });
   }
 });

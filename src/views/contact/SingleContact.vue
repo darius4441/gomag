@@ -1,30 +1,29 @@
 <script setup>
-import { ref, onMounted } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import { useTempStore } from "../../stores/temp";
-import { useToast } from "vue-toast-notification";
-import { useLocalStorage } from "@vueuse/core";
-import axios from "axios";
 import {
-  MenuButton,
-  MenuItem,
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
+  MenuButton,
+  MenuItem,
 } from "@headlessui/vue";
 import {
+  AdjustmentsIcon,
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  AdjustmentsIcon,
   ChevronUpIcon,
-  CheckCircleIcon,
 } from "@heroicons/vue/solid";
-
-import MyButton from "../../components/shared/my-action.vue";
-import Card from "../../components/shared/card-component.vue";
-import MyMenu from "../../components/shared/my-menu.vue";
-import BaseModal from "../../components/shared/modals/BaseModal.vue";
+import { useLocalStorage } from "@vueuse/core";
+import axios from "axios";
 import moment from "moment/min/moment-with-locales";
+import { useToast } from "primevue/usetoast";
+import { onMounted, ref } from "vue-demi";
+import { useRoute, useRouter } from "vue-router";
+import Card from "../../components/shared/card-component.vue";
+import BaseModal from "../../components/shared/modals/BaseModal.vue";
+import MyButton from "../../components/shared/my-action.vue";
+import MyMenu from "../../components/shared/my-menu.vue";
+import { useTempStore } from "../../stores/temp";
 
 moment.locale("fr");
 
@@ -81,9 +80,13 @@ async function archiveContact() {
     await axios
       .patch(`api/v1/contact/${contactID}/`, { isArchived: true })
       .then(() => {
-        toast.success("Contact archivé avec succès", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Archivage",
+          detail: "Contact archivé avec succès",
+          life: 3000,
         });
+
         router.push({ name: "Contacts" });
       })
       .catch((e) => {
@@ -102,8 +105,11 @@ async function archiveContact() {
         break;
     }
 
-    toast.error(displayMessage, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: displayMessage,
+      life: 3000,
     });
   }
 }
@@ -113,9 +119,13 @@ async function deleteContact() {
     await axios
       .delete(`api/v1/contacts/${contactID}/`)
       .then(() => {
-        toast.success("Contact supprimé avec succès", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Suppression",
+          detail: "Contact supprimer avec succès",
+          life: 3000,
         });
+
         router.push({ name: "Contacts" });
       })
       .catch((e) => {
@@ -139,8 +149,11 @@ async function deleteContact() {
         break;
     }
 
-    toast.error(displayMessage, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: displayMessage,
+      life: 3000,
     });
   }
 }

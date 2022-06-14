@@ -2,10 +2,11 @@
 import { PlusCircleIcon, RefreshIcon, XIcon } from "@heroicons/vue/solid";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import moment from "moment";
+import { useToast } from "primevue/usetoast";
 import { useField, useFieldArray, useForm } from "vee-validate";
 import { onMounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
-import { useToast } from "vue-toast-notification";
 import * as zod from "zod";
 import NestedArray from "../../components/operations/creation-item-form.vue";
 import Card from "../../components/shared/card-component.vue";
@@ -120,22 +121,41 @@ const { handleSubmit } = useForm({
 const { value: contact } = useField("contact");
 const { value: m_type } = useField("m_type");
 const { value: date } = useField("date");
-const { remove, push, fields } = useFieldArray("items"); // nested array fields
+const {
+  replace: replaceItem,
+  push: newItem,
+  fields: items,
+} = useFieldArray("items"); // nested items array
 
 // Define functions
 const addItemWatcher = handleSubmit(() => {
-  push({ article: null, quantity: 1, unit: "pcs" });
+  newItem({ article: null, quantity: 1, unit: "pcs" });
 }, onInvalidSubmit);
 
 function addItem() {
-  fields.value.length == 0
-    ? push({
+  items.value.length == 0
+    ? newItem({
         article: null,
         quantity: 1,
         unit: "pcs",
       })
     : addItemWatcher();
 }
+
+const removeItem = (index) => {
+  const shallowCopy = [];
+
+  for (const item of items.value) {
+    shallowCopy.push({
+      article: item.value.article,
+      quantity: item.value.quantity,
+      unit: item.value.unit,
+    });
+  }
+
+  shallowCopy.splice(index, 1);
+  replaceItem(shallowCopy);
+};
 
 async function getProducts() {
   await axios
@@ -144,7 +164,12 @@ async function getProducts() {
       products.value = response.data;
     })
     .catch((error) => {
-      toast.error(JSON.stringify(error));
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(error.message),
+        life: 3000,
+      });
     });
 }
 
@@ -161,7 +186,12 @@ async function getContact() {
       }
     })
     .catch((error) => {
-      toast.error(JSON.stringify(error));
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(error.message),
+        life: 3000,
+      });
     });
 }
 
@@ -171,26 +201,32 @@ function onInvalidSubmit({ errors }) {
     if (item[0].includes("items")) {
       if (i != 0) {
         i--;
-        toast.error(
-          "Veillez ajouter un article avec une quantité de 1 au minimum",
-          {
-            position: "top-right",
-          }
-        );
+
+        toast.add({
+          severity: "error",
+          summary: "Donnée invalide",
+          detail:
+            "Veillez ajouter un article avec une quantité de 1 au minimum",
+          life: 3000,
+        });
       }
     } else {
-      toast.error(`Le champs ${item[0]} est ${item[1]}`, {
-        position: "top-right",
+      toast.add({
+        severity: "error",
+        summary: "Donnée invalide",
+        detail: `Le champs ${item[0]} est ${item[1]}`,
+        life: 3000,
       });
     }
   });
 }
 
-const onSubmit =
+const submitForm =
   isLoading.value === true
     ? null
     : handleSubmit(async (values) => {
         isLoading.value = true;
+        values.date = moment(values.date).format("YYYY-MM-DD");
         values.items.forEach((el) => {
           const article = el.article;
 
@@ -205,8 +241,11 @@ const onSubmit =
             router.push({ name: "SingleOps", params: { id: res.data.id } });
           })
           .catch((error) => {
-            toast.error(error.message, {
-              position: "top-right",
+            toast.add({
+              severity: "error",
+              summary: "Une erreur s'est produite",
+              detail: JSON.stringify(error.message),
+              life: 3000,
             });
           });
 
@@ -241,7 +280,7 @@ onMounted(async () => {
           >
             <RefreshIcon class="h-4 w-4 animate-spin" />
           </button>
-          <MyButton v-else label="Sauver" @click="onSubmit" />
+          <MyButton v-else label="Sauver" @click="submitForm" />
         </div>
 
         <MyButton label="Retour" to="Operations" :isOutlined="true" />
@@ -300,6 +339,7 @@ onMounted(async () => {
                     <PrimeCalendar
                       id="date"
                       v-model="date"
+                      dateFormat="dd/mm/yy"
                       class="w-32"
                       inputClass="w-full"
                     />
@@ -313,7 +353,7 @@ onMounted(async () => {
               <!-- order items info -->
 
               <div
-                class="my-4 h-80 gap-y-4 space-y-2 overflow-y-auto rounded-lg border-2 border-kPrimaryColor p-4 dark:border-kWhiteColor"
+                class="my-4 h-[45vh] gap-y-4 space-y-2 overflow-y-auto rounded-lg border-2 border-kPrimaryColor p-4 dark:border-kWhiteColor"
               >
                 <table class="relative w-full table-fixed">
                   <thead>
@@ -357,7 +397,7 @@ onMounted(async () => {
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(item, idx) in fields"
+                      v-for="(item, idx) in items"
                       :key="item.key"
                       class="rounded-lg focus-within:border-b-2 focus-within:border-kPrimaryColor hover:border-b"
                     >
@@ -366,13 +406,14 @@ onMounted(async () => {
                         :checkType="m_type"
                         :products="products"
                         @addItem="addItem"
+                        @saveOps="submitForm"
                       />
 
                       <td
                         class="w-1/12 whitespace-nowrap py-1 px-1.5 text-center align-middle text-xs"
                       >
                         <div
-                          @click="remove(idx)"
+                          @click="removeItem(idx)"
                           class="cursor-pointer rounded-full py-1 px-1.5 text-red-600 hover:bg-red-600 hover:text-white"
                         >
                           <XIcon class="mx-auto h-5 w-5" />
@@ -381,13 +422,12 @@ onMounted(async () => {
                     </tr>
                   </tbody>
                 </table>
-                <button
+                <PrimeButton
                   type="button"
+                  label="Ajouter une ligne"
                   @click="addItem"
-                  class="mt-1 w-32 rounded-lg px-3 py-1 text-xs underline hover:bg-kPrimaryColor hover:text-white dark:text-kWhiteColor/50 dark:hover:text-kWhiteColor"
-                >
-                  Ajouter une ligne
-                </button>
+                  class="mt-1 w-32 h-1 truncate text-xs p-button-text p-button-info"
+                />
               </div>
             </div>
           </form>

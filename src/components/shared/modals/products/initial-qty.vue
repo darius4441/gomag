@@ -8,8 +8,8 @@ import {
 } from "@headlessui/vue";
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
-import { useToast } from "vue-toast-notification";
 import * as zod from "zod";
 import MyInput from "../../forms/BaseInput.vue";
 import MyButton from "../../my-action.vue";
@@ -45,8 +45,11 @@ const { handleSubmit } = useForm({
 
 function onInvalidSubmit({ errors }) {
   Object.entries(errors).forEach((item) => {
-    toast.error(item[1], {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Donnée invalide",
+      detail: item[1],
+      life: 3000,
     });
   });
 }
@@ -57,18 +60,22 @@ const onSubmit = handleSubmit(async (values) => {
     .patch(`api/v1/stock/products/${props.product.id}/`, values)
     .then(() => {
       emits("refreshProduct");
-      toast.success(
-        `La quantité de l'article ${props.product.name} a été modifié avec succès`,
-        {
-          position: "top-right",
-        }
-      );
+
+      toast.add({
+        severity: "success",
+        summary: "Modification",
+        detail: `La quantité de l'article ${props.product.name} a été modifié avec succès`,
+        life: 3000,
+      });
 
       closeModal();
     })
     .catch((e) => {
-      toast.error(e, {
-        position: "top-right",
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(e),
+        life: 3000,
       });
     });
 }, onInvalidSubmit);

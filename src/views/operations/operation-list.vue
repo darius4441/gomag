@@ -1,97 +1,75 @@
 <script setup>
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  PopoverButton,
-} from "@headlessui/vue";
-import {
-  ArrowSmLeftIcon,
-  ArrowSmRightIcon,
-  ChevronUpIcon,
-  FilterIcon,
-} from "@heroicons/vue/solid";
-import Multiselect from "@suadelabs/vue3-multiselect";
 import axios from "axios";
-// import { useToast } from "primevue/usetoast";
-import { computed, onMounted, ref } from "vue-demi";
-import Card from "../../components/shared/card-component.vue";
+import { FilterMatchMode, FilterOperator } from "primevue/api";
+import { useToast } from "primevue/usetoast";
+import { onMounted, ref } from "vue-demi";
+import { useRouter } from "vue-router";
 import AlertItemModal from "../../components/shared/modals/products/items-to-be-counted-modal.vue";
-import MyButton from "../../components/shared/my-action.vue";
-import MyPopover from "../../components/shared/popover-component.vue";
-import Table from "../../components/shared/table-component.vue";
+import { useOperations } from "../../composables";
 import { useTempStore } from "../../stores/temp";
-
-// const toast = useToast();
+const toast = useToast();
 
 const pageStore = useTempStore();
-const label = [
-  { label: "Reférence", isClass: "uppercase text-left" },
-  { label: "Contact", isClass: "uppercase text-left" },
-  { label: "Date", isClass: "uppercase text-center" },
-  { label: "Etat", isClass: "uppercase text-left" },
-];
-const operations = ref({});
+const router = useRouter();
+const { isLoading, operations } = useOperations();
+
+const dt = ref();
+const selectedOperations = ref();
+const skOperations = ref(new Array(50));
+
 const contacts = ref([]);
-const search = ref("");
-const options = ref([]);
-const currentPage = ref(1);
 const alertProducts = ref([]);
 const isShowAlertItemModal = ref(false);
 
-const filterInfo = ref([
-  { name: "à compter", filterBy: "" },
-  { name: "contact", filterOption: computed(() => contacts.value) },
-  {
-    name: "Etat",
-    filterOption: [
-      { label: "brouillon", filterBy: "state=draft" },
-      { label: "en attente", filterBy: "state=pending" },
-      { label: "fait", filterBy: "state=done" },
-    ],
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  getContactName: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   },
-  {
-    name: "Type",
-    filterOption: [
-      { label: "entrée", filterBy: "m_type=in" },
-      { label: "sortie", filterBy: "m_type=out" },
-      { label: "retour", filterBy: "m_type=rtn" },
-    ],
+  m_type: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   },
-]);
-
-// use to calculate visited item of operations
-const resultLen = ref(0);
-const visited = computed(() => {
-  let res = 0;
-  operations.value.next
-    ? (res = (currentPage.value - 1) * resultLen.value + resultLen.value)
-    : (res = operations.value.count);
-
-  return `${res} sur ${operations.value.count}`;
+  state: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
+  },
+  date: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+  },
 });
 
-// display pagination button
-const asPreviousPage = ref([false]);
-const asNextPage = ref([false]);
-
-function customLabel({ name }) {
-  return name;
-}
-
-function addFilter(newQuery) {
-  search.value.trim()
-    ? (search.value = `${search.value}&${newQuery.filterBy}`)
-    : (search.value = `&${newQuery.filterBy}`);
-
-  options.value.push({
-    id: options.value.length,
-    name: newQuery.label,
+const formatDate = (value) => {
+  const dateF = new Date(value);
+  return dateF.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
+};
 
-  getOperations();
-  // console.log(search.value);
+function goToCreatePage() {
+  router.push({ name: "CreateOps" });
 }
+
+function goToSingleOps(id, isNewTab) {
+  if (isNewTab ?? false) {
+    const routeData = router.resolve({
+      name: "SingleOps",
+      params: { id: id },
+    });
+
+    window.open(routeData.href, "blank");
+  } else {
+    router.push({ name: "SingleOps", params: { id: id } });
+  }
+}
+
+const exportCSV = () => {
+  dt.value.exportCSV();
+};
 
 async function getContacts() {
   await axios.get("api/v1/contacts/").then((res) => {
@@ -107,135 +85,32 @@ async function getContacts() {
   });
 }
 
-async function getOperations() {
-  asPreviousPage.value = false;
-  asNextPage.value = false;
-
-  await axios
-    .get(`/api/v1/operations/?page=${currentPage.value}${search.value}`)
-    .then((response) => {
-      resultLen.value = response.data.results.length;
-      operations.value = response.data;
-
-      if (response.data.previous) {
-        asPreviousPage.value = true;
-      }
-
-      if (response.data.next) {
-        asNextPage.value = true;
-      }
-    })
-    .catch((error) => {
-      console.log(JSON.stringify(error));
-    });
-}
-
 async function getAlertProducts() {
   await axios
     .get("/api/v1/items/items_to_be_counted")
     .then((response) => {
       alertProducts.value = response.data.items_to_be_counted;
-      isShowAlertItemModal.value = true;
     })
     .catch((error) => {
-      console.log(JSON.stringify(error));
+      toast.add({
+        severity: "error",
+        summary: "Une erreur s'est produite",
+        detail: JSON.stringify(error.message),
+        life: 3000,
+      });
     });
-}
-
-function goToPreviousPage() {
-  currentPage.value -= 1;
-
-  getOperations();
-}
-
-function goToNextPage() {
-  currentPage.value += 1;
-
-  getOperations();
 }
 
 onMounted(async () => {
   pageStore.updatePageName("Entrées - Sorties");
 
   await getContacts();
-  await getOperations();
+  await getAlertProducts();
 });
 </script>
 
 <template>
   <div>
-    <!-- Header -->
-    <div class="mx-auto w-full px-4">
-      <div class="flex w-full flex-row items-end justify-between">
-        <MyButton label="Créer une opération" to="CreateOps" />
-        <div class="flex gap-x-4 items-center">
-          <MyPopover menuItemsWidthClass="w-64 left-0">
-            <template #button>
-              <PopoverButton
-                class="flex flex-row items-center rounded px-2 py-1 text-xs font-bold uppercase text-kPrimaryColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:shadow-md hover:ring-2 focus:outline-none dark:text-kWhiteColor sm:mr-2"
-              >
-                <FilterIcon class="mr-1 h-3 w-3" />
-                <span class="font-bold">Filtrer</span>
-              </PopoverButton>
-            </template>
-            <template #content>
-              <div v-for="(filter, idx) in filterInfo" :key="idx">
-                <Disclosure v-if="'filterOption' in filter" v-slot="{ open }">
-                  <DisclosureButton
-                    class="mt-3 flex w-full justify-between rounded bg-kPrimaryColor px-4 py-2 text-xs font-bold uppercase text-kWhiteColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:bg-kSecondaryColor hover:shadow-md focus:outline-none dark:bg-kWhiteColor dark:text-kPrimaryColor sm:mr-2"
-                  >
-                    <span>{{ filter.name }}</span>
-                    <ChevronUpIcon
-                      :class="open ? 'rotate-180 transform' : ''"
-                      class="h-5 w-5"
-                    />
-                  </DisclosureButton>
-                  <DisclosurePanel
-                    class="max-h-64 overflow-y-auto px-4 text-sm"
-                  >
-                    <div v-for="(opt, i) in filter.filterOption" :key="i">
-                      <MyButton
-                        :label="opt.label"
-                        :isOutlined="true"
-                        @click="addFilter(opt)"
-                        class="mx-auto mt-2 w-11/12"
-                      />
-                    </div>
-                  </DisclosurePanel>
-                </Disclosure>
-
-                <MyButton
-                  v-else
-                  :label="filter.name"
-                  :isOutlined="true"
-                  @click="
-                    filter.name == 'à compter' ? getAlertProducts() : null
-                  "
-                  class="mt-2 w-full"
-                />
-              </div>
-            </template>
-          </MyPopover>
-
-          <multiselect
-            v-model="options"
-            :options="options"
-            :custom-label="customLabel"
-            :multiple="true"
-            placeholder="Filtrer"
-            label="name"
-            selectLabel="appliquer ce filtre"
-            selectedLabel="déjà appliqué"
-            deselectLabel="supprimer le filtre"
-            track-by="name"
-            :showNoResults="false"
-          >
-            <template v-slot:noOptions>...</template>
-          </multiselect>
-        </div>
-      </div>
-    </div>
-
     <!-- Alert item modal -->
     <AlertItemModal
       :isOpen="isShowAlertItemModal"
@@ -243,47 +118,216 @@ onMounted(async () => {
       @closeModal="isShowAlertItemModal = false"
     />
 
-    <Card>
-      <template #title>
-        <h1 class="basis-1/2 text-sm">
-          Liste des opérations -
-          <span class="text-sm font-light">
-            {{ visited }} resultat<span v-if="resultLen > 1">s</span>
-          </span>
-        </h1>
-      </template>
-
+    <PrimeCard v-if="isLoading" class="p-4">
       <template #content>
-        <Table
-          what_data="operation"
-          :label_with_filter_name_and_class="label"
-          :data_list="operations.results"
-        />
-      </template>
+        <div class="flex justify-between mb-4">
+          <PrimeSkeleton width="5rem" height="3rem" />
 
-      <!-- pagination button -->
-      <template #footer>
-        <div
-          v-if="currentPage >= 1"
-          class="flex flex-row items-center justify-end gap-x-4 p-3"
-        >
-          <button
-            v-if="asPreviousPage"
-            @click="goToPreviousPage"
-            class="mb-1 rounded px-6 py-1 text-xs font-bold uppercase text-kPrimaryColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:shadow-md hover:ring-2 focus:outline-none dark:text-kWhiteColor dark:ring-kWhiteColor sm:mr-2"
-          >
-            <ArrowSmLeftIcon class="h-5 w-5" />
-          </button>
+          <PrimeSkeleton width="9rem" height="3rem" class="mr-2" />
 
-          <button
-            v-if="asNextPage"
-            @click="goToNextPage"
-            class="mb-1 rounded px-6 py-1 text-xs font-bold uppercase text-kPrimaryColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:shadow-md hover:ring-2 focus:outline-none dark:text-kWhiteColor dark:ring-kWhiteColor sm:mr-2"
-          >
-            <ArrowSmRightIcon class="h-5 w-5" />
-          </button>
+          <div class="flex">
+            <PrimeSkeleton width="3rem" height="3rem" class="mr-2" />
+            <PrimeSkeleton width="20rem" height="3rem" />
+          </div>
         </div>
+
+        <PrimeDataTable
+          :value="skOperations"
+          responsiveLayout="scroll"
+          paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          currentPageReportTemplate="({last} sur {totalRecords})"
+          class="cursor-pointer h-[60vh]"
+          scrollHeight="56vh"
+          :rowHover="true"
+          :scrollable="true"
+          filterDisplay="menu"
+        >
+          <PrimeColumn header="Reférence" class="text-sm truncate">
+            <template #body> <PrimeSkeleton /> </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="getContactName"
+            header="Contact"
+            class="text-sm truncate w-3/12"
+          >
+            <template #body> <PrimeSkeleton /> </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="date"
+            header="Date"
+            class="text-sm truncate w-1/12"
+          >
+            <template #body> <PrimeSkeleton /> </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="state"
+            header="Etat"
+            class="text-sm truncate w-1/12"
+          >
+            <template #body> <PrimeSkeleton /> </template>
+          </PrimeColumn>
+        </PrimeDataTable>
       </template>
-    </Card>
+    </PrimeCard>
+
+    <PrimeCard v-else>
+      <template #content>
+        <PrimeDataTable
+          ref="dt"
+          scrollable
+          :rows="50"
+          dataKey="id"
+          :rowHover="true"
+          :paginator="true"
+          scrollHeight="60vh"
+          :value="operations"
+          filterDisplay="menu"
+          v-model:filters="filters"
+          class="cursor-pointer h-[72vh]"
+          v-model:selection="selectedOperations"
+          @row-click="goToSingleOps($event.data.id)"
+          currentPageReportTemplate="({last} sur {totalRecords})"
+          :globalFilterFields="['getContactName', 'state', 'date', 'm_type']"
+          paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        >
+          <template #header>
+            <div class="flex justify-between items-center">
+              <PrimeButton
+                label="Créer"
+                class="p-button-info mr-4 p-button-sm"
+                @click="goToCreatePage"
+              />
+
+              <PrimeButton
+                v-if="alertProducts.length > 0"
+                label="Produit à vérifier"
+                class="p-button-info p-button-outlined p-button-sm"
+                @click="isShowAlertItemModal = true"
+              />
+
+              <div>
+                <PrimeButton
+                  icon="pi pi-upload p-button-sm p-button-help"
+                  class="p-button-text mr-3"
+                  @click="exportCSV($event)"
+                />
+
+                <span class="p-input-icon-left">
+                  <i class="pi pi-search" />
+                  <PrimeInputText
+                    v-model="filters['global'].value"
+                    placeholder="Recherche rapide"
+                  />
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <template #empty> Aucune opération trouvé. </template>
+
+          <template #loading>
+            Chargement des opérations. Veillez patienter.
+          </template>
+
+          <!-- <PrimeColumn selectionMode="multiple" headerStyle="width: 2rem"></PrimeColumn> -->
+
+          <PrimeColumn
+            header="Reférence"
+            :sortable="false"
+            class="text-sm truncate"
+          >
+            <template #body="{ data }">
+              <span class="font-bold">
+                dpt1/{{ data.m_type }}{{ data.id }}
+              </span>
+            </template>
+
+            <template #filter="{ filterModel }">
+              <PrimeInputText
+                type="text"
+                v-model="filterModel.value"
+                class="p-column-filter"
+                placeholder="Chercher par contact"
+              />
+            </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="getContactName"
+            header="Contact"
+            class="text-sm truncate w-3/12"
+          >
+            <template #body="{ data }">
+              {{ data.getContactName }}
+            </template>
+
+            <template #filter="{ filterModel }">
+              <PrimeInputText
+                type="text"
+                v-model="filterModel.value"
+                class="p-column-filter"
+                placeholder="Chercher par contact"
+              />
+            </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="date"
+            header="Date"
+            dataType="date"
+            :sortable="true"
+            class="text-sm truncate w-1/12"
+          >
+            <template #body="{ data }">
+              {{ formatDate(data.date) }}
+            </template>
+            <template #filter="{ filterModel }">
+              <PrimeCalendar
+                v-model="filterModel.value"
+                dateFormat="dd/mm/yy"
+                placeholder="dd/mm/yyyy"
+              />
+            </template>
+          </PrimeColumn>
+
+          <PrimeColumn
+            field="state"
+            header="Status"
+            sortable
+            :filterMenuStyle="{ width: '14rem' }"
+            style="min-width: 10rem"
+          >
+            <template #body="{ data }">
+              <span :class="'customer-badge state-' + data.state">{{
+                data.state
+              }}</span>
+            </template>
+            <template #filter="{ filterModel }">
+              <PrimeDropdown
+                v-model="filterModel.value"
+                :options="statees"
+                placeholder="Any"
+                class="p-column-filter"
+                :showClear="true"
+              >
+                <template #value="slotProps">
+                  <span :class="'customer-badge state-' + slotProps.value">{{
+                    slotProps.value
+                  }}</span>
+                </template>
+                <template #option="slotProps">
+                  <span :class="'customer-badge state-' + slotProps.option">{{
+                    slotProps.option
+                  }}</span>
+                </template>
+              </PrimeDropdown>
+            </template>
+          </PrimeColumn>
+        </PrimeDataTable>
+      </template>
+    </PrimeCard>
   </div>
 </template>

@@ -1,7 +1,4 @@
-/*eslint no-undef: "error"*/
-/*eslint-env node*/
-const formKitTailwind = require("@formkit/themes/tailwindcss");
-
+// eslint-disable-next-line no-undef
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx,vue}"],
   darkMode: "class",
@@ -16,5 +13,4 @@ module.exports = {
       },
     },
   },
-  plugins: [formKitTailwind],
 };

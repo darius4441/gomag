@@ -1,14 +1,8 @@
-useProducts
 <script setup>
-import moment from "moment/min/moment-with-locales";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
-import Column from "primevue/column";
-import DataTable from "primevue/datatable";
 import { ref } from "vue-demi";
 import { useRouter } from "vue-router";
 import { useProducts } from "../../composables";
-
-moment.locale("fr");
 
 const router = useRouter();
 const { products, isLoading } = useProducts();
@@ -55,7 +49,7 @@ const filters = ref({
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
   },
-  modified_at: {
+  created_at: {
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
   },
@@ -63,16 +57,22 @@ const filters = ref({
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
   },
+  modified_at: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+  },
   modified_by: {
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
   },
 });
 
-const timePast = (date) => {
-  let newDate = moment(date).startOf("day").fromNow();
-
-  return newDate;
+const formatDate = (value) => {
+  return value.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 };
 
 const formatCurrency = (value) => {
@@ -112,98 +112,103 @@ function goToSingleProduct(id, isNewTab) {
           </div>
         </div>
 
-        <DataTable
+        <PrimeDataTable
           :value="skProducts"
           responsiveLayout="scroll"
           paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="({last} sur {totalRecords})"
-          scroll-height="65vh"
+          class="cursor-pointer h-[60vh]"
+          scrollHeight="50vh"
           :rowHover="true"
           :scrollable="true"
           filterDisplay="menu"
         >
-          <Column field="name" header="Article" class="text-sm truncate w-3/12">
+          <PrimeColumn
+            field="name"
+            header="Article"
+            class="text-sm truncate w-3/12"
+          >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
+          </PrimeColumn>
+          <PrimeColumn
             field="category"
             header="Catégorie"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="providers"
             header="Fournisseur"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="real_quantity"
             header="En Stock"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="unit"
             header="Unité"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="unit_cost"
             header="Cout d'achat"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="unit_price"
             header="Prix de vente"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="created_at"
             header="Créer"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-          <Column
-            field="quantity"
+          </PrimeColumn>
+          <PrimeColumn
+            field="modified_at"
             header="Modifier"
             class="text-sm truncate w-1/12"
           >
             <template #body> <PrimeSkeleton /> </template>
-          </Column>
-        </DataTable>
+          </PrimeColumn>
+        </PrimeDataTable>
       </template>
     </PrimeCard>
 
     <PrimeCard v-else>
       <template #content>
-        <DataTable
+        <PrimeDataTable
           ref="dt"
-          :value="products"
-          :paginator="true"
-          scrollable
           :rows="50"
+          scrollable
           dataKey="id"
           :rowHover="true"
-          v-model:selection="selectedArticles"
+          :value="products"
+          :paginator="true"
+          scrollHeight="60vh"
           filterDisplay="menu"
           v-model:filters="filters"
+          v-model:selection="selectedArticles"
           @row-click="goToSingleProduct($event.data.id)"
-          paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="({last} sur {totalRecords})"
           :globalFilterFields="['code', 'name', 'get_category', 'providers']"
-          class="cursor-pointer"
-          scrollHeight="65vh"
+          paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          class="cursor-pointer h-[72vh]"
         >
           <template #header>
             <div class="flex justify-between items-center">
@@ -236,9 +241,13 @@ function goToSingleProduct(id, isNewTab) {
             Chargement des produits. Veillez patienter.
           </template>
 
-          <!-- <Column selectionMode="multiple" headerStyle="width: 2rem"></Column> -->
+          <!-- <PrimeColumn selectionMode="multiple" headerStyle="width: 2rem"></PrimeColumn> -->
 
-          <Column field="name" header="Article" class="text-sm truncate w-3/12">
+          <PrimeColumn
+            field="name"
+            header="Article"
+            class="text-sm truncate w-3/12"
+          >
             <template #body="{ data }">
               {{ data.name }}
             </template>
@@ -251,9 +260,9 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="Chercher par nom"
               />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="get_category"
             header="Catégorie"
             filterMatchMode="starts_with"
@@ -267,9 +276,9 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="Chercher par catégorie"
               />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="providers"
             header="Fournisseurs"
             filterMatchMode="starts_with"
@@ -283,9 +292,9 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="Chercher par fournisseur"
               />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="real_quantity"
             header="En Stock"
             dataType="numeric"
@@ -297,9 +306,9 @@ function goToSingleProduct(id, isNewTab) {
             <template #filter="{ filterModel }">
               <PrimeInputNumber v-model="filterModel.value" />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="uom"
             header="Unité"
             class="text-sm truncate w-1/12 text-center"
@@ -312,9 +321,9 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="Chercher par unité   "
               />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="unit_cost"
             header="Cout d'achat"
             dataType="numeric"
@@ -326,9 +335,9 @@ function goToSingleProduct(id, isNewTab) {
             <template #filter="{ filterModel }">
               <PrimeInputNumber v-model="filterModel.value" />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="unit_price"
             header="Prix de vente"
             dataType="numeric"
@@ -340,9 +349,9 @@ function goToSingleProduct(id, isNewTab) {
             <template #filter="{ filterModel }">
               <PrimeInputNumber v-model="filterModel.value" />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="created_at"
             header="Créer"
             dataType="date"
@@ -350,7 +359,7 @@ function goToSingleProduct(id, isNewTab) {
             class="text-sm truncate w-1/12"
           >
             <template #body="{ data }">
-              {{ timePast(data.created_at) }}
+              {{ formatDate(data.created_at) }}
             </template>
             <template #filter="{ filterModel }">
               <PrimeCalendar
@@ -359,9 +368,9 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="dd/mm/yyyy"
               />
             </template>
-          </Column>
+          </PrimeColumn>
 
-          <Column
+          <PrimeColumn
             field="modified_at"
             header="Modifier"
             dataType="date"
@@ -369,7 +378,7 @@ function goToSingleProduct(id, isNewTab) {
             class="text-sm truncate w-1/12"
           >
             <template #body="{ data }">
-              {{ timePast(data.modified_at) }}
+              {{ formatDate(data.modified_at) }}
             </template>
             <template #filter="{ filterModel }">
               <PrimeCalendar
@@ -378,8 +387,8 @@ function goToSingleProduct(id, isNewTab) {
                 placeholder="dd/mm/yyyy"
               />
             </template>
-          </Column>
-        </DataTable>
+          </PrimeColumn>
+        </PrimeDataTable>
       </template>
     </PrimeCard>
   </div>

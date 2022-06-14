@@ -1,10 +1,10 @@
 <script setup>
 import { toFormValidator } from "@vee-validate/zod";
 import axios from "axios";
+import { useToast } from "primevue/usetoast";
 import { useField, useForm } from "vee-validate";
 import { computed, onMounted, onUnmounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
-import { useToast } from "vue-toast-notification";
 import * as zod from "zod";
 import { useTempStore } from "../../stores/temp";
 
@@ -127,8 +127,11 @@ const { value: unit_cost, errorMessage: unit_costError } =
 // Define functions
 function onInvalidSubmit({ errors }) {
   Object.entries(errors).forEach((item) => {
-    toast.error("Le champ " + item[1], {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Donnée invalide",
+      detail: "Le champ " + item[1],
+      life: 3000,
     });
   });
 }
@@ -155,8 +158,11 @@ const onSubmit = handleSubmit(async () => {
       .then((res) => {
         resetForm();
 
-        toast.success("Article créer avec succes", {
-          position: "top-right",
+        toast.add({
+          severity: "success",
+          summary: "Donnée invalide",
+          detail: "Article créer avec succès",
+          life: 3000,
         });
 
         router.push({
@@ -168,8 +174,11 @@ const onSubmit = handleSubmit(async () => {
         throw e;
       });
   } catch (error) {
-    toast.error(error.message, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: JSON.stringify(error.message),
+      life: 3000,
     });
   }
 
@@ -192,8 +201,11 @@ async function getCategories() {
         throw e;
       });
   } catch (error) {
-    toast.error(error.message, {
-      position: "top-right",
+    toast.add({
+      severity: "error",
+      summary: "Une erreur s'est produite",
+      detail: JSON.stringify(error.message),
+      life: 3000,
     });
   }
 }

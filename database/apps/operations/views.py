@@ -51,7 +51,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 class OperationViewSet(viewsets.ModelViewSet):
     serializer_class = OperationSerializer
     queryset = Operation.objects.all()
-    pagination_class = OperationPagination
+    # pagination_class = OperationPagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
         "contact__id",
