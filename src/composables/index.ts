@@ -87,15 +87,25 @@ export function useProducts() {
 }
 
 //? ***************** operations query space *******************
+
+interface Item {
+  id: Number;
+  article: Number;
+  quantity: Number;
+  unit: String;
+  old_qty: Number;
+  cost: Number | undefined | null;
+  get_article_name: String;
+  get_article_available_qty: Number;
+}
 interface Operation {
   id: Number;
-  contact: Number;
-  m_type: String;
-  date: Date;
-  annexe: String;
-  state: String;
-  items: Product[];
   getContactName: String;
+  m_type: String;
+  annexe: String | undefined | null;
+  date: Date;
+  state: String;
+  items: Item[];
 }
 
 const getOperation = async (id: number) => {
@@ -107,7 +117,16 @@ const getOperation = async (id: number) => {
 };
 
 const getOperations = async () => {
-  const response = await axios.get("api/v1/operations").then((res) => res.data);
+  const response = await axios.get("api/v1/operations").then((res) => {
+    var operationList: Operation[] = [];
+
+    res.data.forEach((el: Operation) => {
+      el.date = new Date(el.date);
+      operationList.push(el);
+    });
+
+    return operationList;
+  });
 
   return response;
 };

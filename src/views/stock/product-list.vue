@@ -105,7 +105,7 @@ function goToSingleProduct(id, isNewTab) {
     <PrimeCard v-if="isLoading" class="p-4">
       <template #content>
         <div class="flex justify-between mb-4">
-          <PrimeSkeleton width="5rem" height="3rem" />
+          <PrimeSkeleton width="9rem" height="3rem" />
           <div class="flex">
             <PrimeSkeleton width="3rem" height="3rem" class="mr-2" />
             <PrimeSkeleton width="20rem" height="3rem" />
@@ -117,72 +117,84 @@ function goToSingleProduct(id, isNewTab) {
           responsiveLayout="scroll"
           paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="({last} sur {totalRecords})"
-          class="cursor-pointer h-[60vh]"
+          class="cursor-pointer h-[60vh] p-datatable-sm"
           scrollHeight="50vh"
           :rowHover="true"
           :scrollable="true"
           filterDisplay="menu"
         >
-          <PrimeColumn
-            field="name"
-            header="Article"
-            class="text-sm truncate w-3/12"
-          >
+          <PrimeColumn field="name" header="Article" class="text-sm truncate">
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="category"
             header="Catégorie"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="providers"
             header="Fournisseur"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="real_quantity"
             header="En Stock"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="unit"
             header="Unité"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="unit_cost"
             header="Cout d'achat"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="unit_price"
             header="Prix de vente"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="created_at"
             header="Créer"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
+
           <PrimeColumn
             field="modified_at"
             header="Modifier"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body> <PrimeSkeleton /> </template>
           </PrimeColumn>
@@ -208,7 +220,7 @@ function goToSingleProduct(id, isNewTab) {
           currentPageReportTemplate="({last} sur {totalRecords})"
           :globalFilterFields="['code', 'name', 'get_category', 'providers']"
           paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-          class="cursor-pointer h-[72vh]"
+          class="cursor-pointer h-[72vh] p-datatable-sm"
         >
           <template #header>
             <div class="flex justify-between items-center">
@@ -243,11 +255,7 @@ function goToSingleProduct(id, isNewTab) {
 
           <!-- <PrimeColumn selectionMode="multiple" headerStyle="width: 2rem"></PrimeColumn> -->
 
-          <PrimeColumn
-            field="name"
-            header="Article"
-            class="text-sm truncate w-3/12"
-          >
+          <PrimeColumn field="name" header="Article" class="text-sm truncate">
             <template #body="{ data }">
               {{ data.name }}
             </template>
@@ -266,13 +274,15 @@ function goToSingleProduct(id, isNewTab) {
             field="get_category"
             header="Catégorie"
             filterMatchMode="starts_with"
-            class="text-sm truncate w-1/12 text-center"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate text-center"
           >
             <template #filter="{ filterModel }">
               <PrimeInputText
                 type="text"
                 v-model="filterModel.value"
                 class="p-column-filter"
+                style="flex: 0 0 9rem"
                 placeholder="Chercher par catégorie"
               />
             </template>
@@ -282,7 +292,8 @@ function goToSingleProduct(id, isNewTab) {
             field="providers"
             header="Fournisseurs"
             filterMatchMode="starts_with"
-            class="text-sm truncate w-1/12 text-center"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate text-center"
           >
             <template #filter="{ filterModel }">
               <PrimeInputText
@@ -298,7 +309,8 @@ function goToSingleProduct(id, isNewTab) {
             field="real_quantity"
             header="En Stock"
             dataType="numeric"
-            class="text-sm truncate w-1/12 text-right"
+            class="text-sm truncate text-right"
+            style="flex: 0 0 9rem"
           >
             <template #body="{ data }">
               {{ data.real_quantity.toLocaleString() }}
@@ -311,14 +323,15 @@ function goToSingleProduct(id, isNewTab) {
           <PrimeColumn
             field="uom"
             header="Unité"
-            class="text-sm truncate w-1/12 text-center"
+            class="text-sm truncate text-center"
+            style="flex: 0 0 9rem"
           >
             <template #filter="{ filterModel }">
               <PrimeInputText
                 type="text"
                 v-model="filterModel.value"
                 class="p-column-filter"
-                placeholder="Chercher par unité   "
+                placeholder="Chercher par unité"
               />
             </template>
           </PrimeColumn>
@@ -327,7 +340,8 @@ function goToSingleProduct(id, isNewTab) {
             field="unit_cost"
             header="Cout d'achat"
             dataType="numeric"
-            class="text-sm truncate w-1/12 text-right"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate text-right"
           >
             <template #body="{ data }">
               {{ formatCurrency(data.unit_cost) }}
@@ -341,7 +355,8 @@ function goToSingleProduct(id, isNewTab) {
             field="unit_price"
             header="Prix de vente"
             dataType="numeric"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body="{ data }">
               {{ formatCurrency(data.unit_price) }}
@@ -356,7 +371,8 @@ function goToSingleProduct(id, isNewTab) {
             header="Créer"
             dataType="date"
             :sortable="true"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body="{ data }">
               {{ formatDate(data.created_at) }}
@@ -375,7 +391,8 @@ function goToSingleProduct(id, isNewTab) {
             header="Modifier"
             dataType="date"
             :sortable="true"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 9rem"
+            class="text-sm truncate"
           >
             <template #body="{ data }">
               {{ formatDate(data.modified_at) }}

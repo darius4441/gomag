@@ -157,6 +157,10 @@ const removeItem = (index) => {
   replaceItem(shallowCopy);
 };
 
+function setToday() {
+  date.value = new Date(Date.now());
+}
+
 async function getProducts() {
   await axios
     .get("/api/v1/stock/products")
@@ -270,6 +274,8 @@ onMounted(async () => {
 
 <template>
   <div>
+    <PrimeToast />
+
     <!-- Header -->
     <div class="mx-auto w-full px-4">
       <div class="flex w-full flex-row items-center">
@@ -334,24 +340,26 @@ onMounted(async () => {
                   </label>
                 </span>
 
-                <div>
-                  <span class="p-float-label text-md text-slate-700">
+                <div class="col-12 md:col-4">
+                  <div class="p-inputgroup">
                     <PrimeCalendar
                       id="date"
                       v-model="date"
                       dateFormat="dd/mm/yy"
                       class="w-32"
+                      placeholder="Date"
                       inputClass="w-full"
                     />
-                    <label for="date" class="text-md text-slate-700">
-                      Date
-                    </label>
-                  </span>
+                    <PrimeButton
+                      icon="pi pi-clock"
+                      @click="setToday()"
+                      class="p-button-info p-button-outlined p-button-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
               <!-- order items info -->
-
               <div
                 class="my-4 h-[45vh] gap-y-4 space-y-2 overflow-y-auto rounded-lg border-2 border-kPrimaryColor p-4 dark:border-kWhiteColor"
               >

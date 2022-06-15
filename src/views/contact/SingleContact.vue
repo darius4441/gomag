@@ -206,6 +206,8 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-row">
+    <PrimeToast />
+
     <div class="basis-3/5">
       <div class="flex flex-col">
         <!-- Header -->

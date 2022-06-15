@@ -233,6 +233,8 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col md:flex-row">
+    <PrimeToast />
+
     <div class="basis-3/5">
       <template v-if="!isLoading">
         <div class="flex flex-col">

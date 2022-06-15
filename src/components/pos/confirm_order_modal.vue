@@ -1,14 +1,14 @@
 <script setup>
-import { useNow, useDateFormat } from "@vueuse/core";
-import { PrinterIcon, DownloadIcon } from "@heroicons/vue/solid";
 import {
-  TransitionRoot,
-  TransitionChild,
   Dialog,
+  DialogDescription,
   DialogOverlay,
   DialogTitle,
-  DialogDescription,
+  TransitionChild,
+  TransitionRoot,
 } from "@headlessui/vue";
+import { DownloadIcon, PrinterIcon } from "@heroicons/vue/solid";
+import { useDateFormat, useNow } from "@vueuse/core";
 
 import MyButton from "../shared/my-action.vue";
 
@@ -61,7 +61,7 @@ const overlayClass = `fixed inset-0 ${props.overlay_bg}`;
             leave-to="opacity-0 scale-95"
           >
             <div
-              class="text-sm inline-block max-w-sm transform overflow-hidden rounded-2xl bg-white p-3 text-left align-middle shadow-xl transition-all"
+              class="text-xs inline-block max-w-sm transform overflow-hidden rounded-2xl bg-white p-3 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle>
                 <div>
@@ -69,7 +69,7 @@ const overlayClass = `fixed inset-0 ${props.overlay_bg}`;
                   <div>
                     <span>Contact:</span>
                     <span> +225 27 30 62 5060 </span>
-                    <span> +225 85 32 4567 </span>
+                    <span>85 32 4567 </span>
                   </div>
                   <p>
                     Vendeur

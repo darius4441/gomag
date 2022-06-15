@@ -27,6 +27,10 @@ const filters = ref({
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   },
+  "items.get_article_name": {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+  },
   m_type: {
     operator: FilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
@@ -40,6 +44,15 @@ const filters = ref({
     constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
   },
 });
+
+const statuses = ref([
+  "unqualified",
+  "qualified",
+  "new",
+  "negotiation",
+  "renewal",
+  "proposal",
+]);
 
 const formatDate = (value) => {
   const dateF = new Date(value);
@@ -111,6 +124,8 @@ onMounted(async () => {
 
 <template>
   <div>
+    <PrimeToast />
+
     <!-- Alert item modal -->
     <AlertItemModal
       :isOpen="isShowAlertItemModal"
@@ -136,7 +151,7 @@ onMounted(async () => {
           responsiveLayout="scroll"
           paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="({last} sur {totalRecords})"
-          class="cursor-pointer h-[60vh]"
+          class="cursor-pointer h-[60vh] p-datatable-sm"
           scrollHeight="56vh"
           :rowHover="true"
           :scrollable="true"
@@ -186,11 +201,11 @@ onMounted(async () => {
           :value="operations"
           filterDisplay="menu"
           v-model:filters="filters"
-          class="cursor-pointer h-[72vh]"
           v-model:selection="selectedOperations"
           @row-click="goToSingleOps($event.data.id)"
+          class="cursor-pointer h-[72vh] p-datatable-sm"
           currentPageReportTemplate="({last} sur {totalRecords})"
-          :globalFilterFields="['getContactName', 'state', 'date', 'm_type']"
+          :globalFilterFields="['getContactName', 'items.get_article_name']"
           paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
         >
           <template #header>
@@ -294,36 +309,36 @@ onMounted(async () => {
           </PrimeColumn>
 
           <PrimeColumn
-            field="state"
-            header="Status"
+            field="status"
+            header="Etat"
             sortable
             :filterMenuStyle="{ width: '14rem' }"
             style="min-width: 10rem"
           >
             <template #body="{ data }">
-              <span :class="'customer-badge state-' + data.state">{{
-                data.state
-              }}</span>
+              <span :class="'customer-badge state-' + data.state">
+                {{ data.state }}
+              </span>
             </template>
             <template #filter="{ filterModel }">
-              <PrimeDropdown
+              <Dropdown
                 v-model="filterModel.value"
-                :options="statees"
+                :options="statuses"
                 placeholder="Any"
                 class="p-column-filter"
                 :showClear="true"
               >
                 <template #value="slotProps">
-                  <span :class="'customer-badge state-' + slotProps.value">{{
-                    slotProps.value
-                  }}</span>
+                  <span :class="'customer-badge state-' + slotProps.value">
+                    {{ slotProps.value }}
+                  </span>
                 </template>
                 <template #option="slotProps">
-                  <span :class="'customer-badge state-' + slotProps.option">{{
-                    slotProps.option
-                  }}</span>
+                  <span :class="'customer-badge state-' + slotProps.option">
+                    {{ slotProps.option }}
+                  </span>
                 </template>
-              </PrimeDropdown>
+              </Dropdown>
             </template>
           </PrimeColumn>
         </PrimeDataTable>

@@ -118,6 +118,8 @@ const submitForm = handleSubmit(async () => {
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gray-100"
   >
+    <PrimeToast />
+
     <div class="my-4 bg-white px-8 py-6 text-left shadow-lg">
       <div class="flex justify-center">
         <AcademicCapIcon class="h-20 w-20 text-blue-600" />

@@ -223,6 +223,8 @@ onUnmounted(async () => {
 
 <template>
   <div>
+    <PrimeToast />
+
     <!-- Header -->
     <PrimeBreadcrumb :home="breadcrumb.home" :model="breadcrumb.items" />
 

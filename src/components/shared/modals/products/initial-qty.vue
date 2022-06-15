@@ -84,6 +84,8 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <TransitionRoot appear :show="props.isOpen" as="template">
     <Dialog as="div" @close="closeModal">
+      <PrimeToast />
+
       <div class="fixed inset-0 z-10 overflow-y-auto">
         <div class="min-h-screen px-4 text-center">
           <TransitionChild

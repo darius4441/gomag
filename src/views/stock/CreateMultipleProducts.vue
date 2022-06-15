@@ -149,6 +149,8 @@ onMounted(() => {
 
 <template>
   <div>
+    <PrimeToast />
+
     <!-- Header -->
     <div class="mx-auto w-full px-4">
       <div class="flex w-full flex-row items-center">

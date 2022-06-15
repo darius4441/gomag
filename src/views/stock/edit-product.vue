@@ -135,42 +135,48 @@ function onInvalidSubmit({ errors }) {
 }
 
 // auto call by node when submitForm was called
-const onSubmit = handleSubmit(async () => {
+const onSubmit = handleSubmit(async (values) => {
   isLoading.value = true;
 
-  const formData = {
-    name: name.value,
-    category: category.value,
-    code: code.value,
-    description: description.value,
-    uom: uom.value,
-    providers: providers.value,
-    alert_stock: alert_stock.value,
-    optimal_stock: optimal_stock.value,
-    unit_price: unit_price.value,
-    unit_cost: unit_cost.value,
-  };
+  // const formData = {
+  //   name: name.value,
+  //   category: category.value,
+  //   code: code.value,
+  //   description: description.value,
+  //   uom: uom.value,
+  //   providers: providers.value,
+  //   alert_stock: alert_stock.value,
+  //   optimal_stock: optimal_stock.value,
+  //   unit_price: unit_price.value,
+  //   unit_cost: unit_cost.value,
+  // };
+
   try {
-    await axios
-      .patch(`/api/v1/stock/products/${edit_product}/`, formData)
-      .then((res) => {
-        resetForm();
-
-        toast.add({
-          severity: "success",
-          summary: "Modification",
-          detail: "Article modifié avec succès",
-          life: 3000,
-        });
-
-        router.push({
+    edit_product === values
+      ? router.push({
           name: "SingleProduct",
-          params: { id: res.data.id },
-        });
-      })
-      .catch((e) => {
-        throw e;
-      });
+          params: { id: edit_product.id },
+        })
+      : await axios
+          .patch(`/api/v1/stock/products/${edit_product.id}/`, values)
+          .then((res) => {
+            resetForm();
+
+            toast.add({
+              severity: "success",
+              summary: "Modification",
+              detail: "Article modifié avec succès",
+              life: 3000,
+            });
+
+            router.push({
+              name: "SingleProduct",
+              params: { id: res.data.id },
+            });
+          })
+          .catch((e) => {
+            throw e;
+          });
   } catch (error) {
     toast.add({
       severity: "error",
@@ -221,6 +227,8 @@ onUnmounted(async () => {
 
 <template>
   <div>
+    <PrimeToast />
+
     <!-- Header -->
     <PrimeBreadcrumb :home="breadcrumb.home" :model="breadcrumb.items" />
 

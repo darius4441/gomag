@@ -1,6 +1,6 @@
-import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
+import { defineStore } from "pinia";
 
 export const useProductStore = defineStore({
   id: "product",
@@ -12,7 +12,7 @@ export const useProductStore = defineStore({
   actions: {
     async getProducts() {
       await axios
-        .get("/api/v1/stock/products/all_products/")
+        .get("/api/v1/stock/products/")
         .then((response) => {
           this.products = response.data;
         })

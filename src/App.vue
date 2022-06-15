@@ -3,9 +3,13 @@ import axios from "axios";
 import { RouterView } from "vue-router";
 import Navigation from "./components/shared/nav-bar.vue";
 import { useAuthStore } from "./stores/auth";
+import { useOperationStore } from "./stores/operation";
+import { useProductStore } from "./stores/product";
 
 // access to store and router in composition mode
 const storeAuth = useAuthStore();
+const products = useProductStore();
+const operations = useOperationStore();
 
 storeAuth.initializeStore;
 
@@ -14,6 +18,8 @@ const token = storeAuth.token;
 
 if (token) {
   // execute some functions when authentication passed
+  products.getProducts();
+  operations.getOperations();
   axios.defaults.headers.common["Authorization"] = "Token " + token;
 } else {
   axios.defaults.headers.common["Authorization"] = "";

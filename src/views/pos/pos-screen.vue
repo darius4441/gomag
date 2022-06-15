@@ -87,8 +87,6 @@ const { value: unit_price, errorMessage: unit_priceError } =
 // ? Declare functions
 
 const addItem = handleSubmit((values) => {
-  delete values.article;
-
   order.value.push(values);
 
   resetForm();
@@ -103,6 +101,11 @@ async function getProducts() {
     .catch((error) => {
       console.log(JSON.stringify(error));
     });
+}
+
+async function resetSearch() {
+  search.value = "";
+  await getProducts();
 }
 
 async function getProduct(id) {
@@ -144,7 +147,7 @@ onMounted(async () => {
 
   <div class="flex h-[85vh] flex-row gap-x-4 mb-2">
     <!-- add item area -->
-    <div class="relative basis-3/4">
+    <div class="w-full relative">
       <div
         class="grid p-1 h-[60vh] gap-2 overflow-y-auto grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
       >
@@ -293,21 +296,27 @@ onMounted(async () => {
         <div
           class="flex w-3/5 justify-center border-2 rounded-b-lg border-kPrimaryColor/50 py-2 mt-2"
         >
-          <span class="p-input-icon-left">
-            <i class="pi pi-search" />
-            <PrimeInputText
-              type="text"
-              v-model="search"
-              placeholder="Trouver ..."
-              @input="getProducts()"
-            />
-          </span>
+          <div class="col-12 md:col-4">
+            <div class="p-inputgroup">
+              <PrimeInputText
+                type="text"
+                v-model="search"
+                placeholder="Trouver ..."
+                @input="getProducts()"
+              />
+              <PrimeButton
+                icon="pi pi-times"
+                @click="resetSearch"
+                class="p-button-secondary p-button-sm"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- order area -->
-    <div class="relative basis-1/4 bg-kPrimaryColor text-kWhiteColor">
+    <div class="relative w-[65vh] bg-kPrimaryColor text-kWhiteColor">
       <div class="mb-1 h-12 bg-kWhiteColor/20">
         <h1 class="text-center text-lg font-bold">Votre panier</h1>
       </div>
