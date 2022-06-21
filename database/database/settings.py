@@ -34,6 +34,8 @@ ALLOWED_HOSTS = ["10.0.2.2", "127.0.0.1"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8081",
     "http://localhost:3000",
+    "http://localhost:3200",
+    "http://localhost:5500",
 ]
 
 REST_FRAMEWORK = {
@@ -64,7 +66,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     # "docs",
     # own apps
-    'apps.base',
+    # 'apps.base',
     "apps.stock",
     "apps.operations",
     "apps.account",

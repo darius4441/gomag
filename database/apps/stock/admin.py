@@ -71,6 +71,8 @@ class ProductAdmin(ImportExportActionModelAdmin):
         "category",
         "providers",
         "real_quantity",
+        "semi_wholesale_price",
+        "wholesale_price",
         "unit_cost",
         "uom",
         "unit",
@@ -97,7 +99,7 @@ class ProductAdmin(ImportExportActionModelAdmin):
             "Donnée de filtre",
             {"fields": ("category", "providers", "code")},
         ),
-        ("Suivie de stock", {"fields": ("alert_stock", "optimal_stock")}),
+        ("Suivie de stock", {"fields": ("alert_stock", "optimal_stock","description")}),
         ("Tracabilité", {"fields": ("created_by", "modified_by")}),
     )
 
