@@ -1,13 +1,6 @@
 from rest_framework import serializers
 
-from .models import (
-    Inventory,
-    InventoryItem,
-    ParentUOM,
-    Product,
-    ProductCategory,
-    Uom,
-)
+from .models import Inventory, InventoryItem, ParentUOM, Product, ProductCategory, Uom
 
 
 class CategoryUomSerializer(serializers.ModelSerializer):
@@ -40,6 +33,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "modified_at",
             "modified_by",
             "getUom",
+            "isAlert",
             "get_category",
         )
         fields = (
@@ -67,6 +61,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "modified_by",
             "getReplenish",
             "getUom",
+            "isAlert",
             "get_category",
         )
 

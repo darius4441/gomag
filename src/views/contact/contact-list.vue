@@ -1,12 +1,12 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted } from "vue-demi";
+import { onMounted, ref } from "vue-demi";
 import { useTempStore } from "../../stores/temp";
 
 import companyPic from "@/assets/images/default/company_default.png";
 import deliverPic from "@/assets/images/default/deliver.png";
-import malePic from "@/assets/images/default/male.png";
 import femalePic from "@/assets/images/default/female.png";
+import malePic from "@/assets/images/default/male.png";
 
 import MyCard from "../../components/shared/card-component.vue";
 
@@ -18,7 +18,7 @@ const contacts = ref("");
 
 // declare functions
 async function getContacts() {
-  await axios.get("api/v1/contacts/").then((res) => {
+  await axios.get("api/v1/contacts").then((res) => {
     contacts.value = res.data;
   });
 }

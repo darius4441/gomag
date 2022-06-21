@@ -20,15 +20,17 @@ const validationSchema = toFormValidator(
     username: zod.string("champ obligatoire"),
     email: zod.string("Champ requis").email({ message: "Email non valide" }),
     password: zod.string("Champ requis").min(6, { message: "Trop court" }),
-    // passwordForm: zod
-    //   .object({
-    //     password: zod.string("Champ requis").min(6, { message: "Trop court" }),
-    //     confirm: zod.string(),
-    //   })
-    //   .refine((data) => data.password === data.confirm, {
-    //     message: "Le mot de passe ne correspond pas !",
-    //     path: ["confirm"],
-    //   }),
+    /*
+    passwordForm: zod
+       .object({
+         password: zod.string("Champ requis").min(6, { message: "Trop court" }),
+         confirm: zod.string(),
+       })
+       .refine((data) => data.password === data.confirm, {
+         message: "Le mot de passe ne correspond pas !",
+         path: ["confirm"],
+       }),
+    */
   })
 );
 
@@ -62,7 +64,7 @@ const submitForm =
 
         try {
           await axios
-            .post("/api/v1/usssaers/", formData)
+            .post("/api/v1/users/", formData)
             .then(() => {
               resetForm();
               route.push({ name: "Login" });

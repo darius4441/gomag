@@ -108,6 +108,15 @@ const routes = [
       requireLogin: true,
     },
   },
+  {
+    path: "/contacts/employee",
+    name: "Employee",
+    component: () => import("../views/contact/employee-list.vue"),
+    meta: {
+      title: "Employé",
+      requireLogin: true,
+    },
+  },
 
   // ? operation route area
   {

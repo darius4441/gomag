@@ -26,6 +26,7 @@ interface Product {
   modified_at: Date;
   modified_by: Number;
   getReplenish: String;
+  isAlert: Boolean;
   getUom: String;
   get_category: String;
 }
@@ -39,6 +40,8 @@ const getProduct = async (id: number) => {
 };
 
 const getProducts = async () => {
+  let existProvider: String[] = [];
+
   const response = await axios.get("api/v1/stock/products").then((res) => {
     var productList: Product[] = [];
 
@@ -61,7 +64,7 @@ export function useProduct(id: number) {
     isLoading,
     refetch,
   } = useQuery(["product", id], async () => await getProduct(id), {
-    staleTime: 120 * 1000,
+    staleTime: 300 * 1000,
   });
 
   return {
@@ -72,17 +75,18 @@ export function useProduct(id: number) {
 }
 
 export function useProducts() {
-  const { data: products, isLoading } = useQuery(
-    "products",
-    async () => await getProducts(),
-    {
-      staleTime: 120 * 1000,
-    }
-  );
+  const {
+    data: products,
+    isLoading,
+    refetch,
+  } = useQuery("products", async () => await getProducts(), {
+    staleTime: 300 * 1000,
+  });
 
   return {
     products,
     isLoading,
+    refetch,
   };
 }
 
@@ -158,6 +162,63 @@ export function useOperations() {
 
   return {
     operations,
+    isLoading,
+  };
+}
+
+//? ***************** staff query space *******************
+interface Employee {
+  id: Number;
+  username: String;
+  first_name: String;
+  last_name: String;
+  phone: String;
+  email: String;
+}
+
+const getEmployee = async (id: number) => {
+  const response = await axios
+    .get(`/api/v1/users/${id}`)
+    .then((res) => res.data);
+
+  return response;
+};
+
+const getEmployees = async () => {
+  const response = await axios.get("api/v1/users").then((res) => {
+    return res.data;
+  });
+
+  return response;
+};
+
+export function useEmployee(id: number) {
+  const {
+    data: employee,
+    isLoading,
+    refetch,
+  } = useQuery(["employee", id], async () => await getEmployee(id), {
+    staleTime: 120 * 1000,
+  });
+
+  return {
+    employee,
+    isLoading,
+    refetch,
+  };
+}
+
+export function useEmployees() {
+  const { data: employees, isLoading } = useQuery(
+    "employees",
+    async () => await getEmployees(),
+    {
+      staleTime: 10 * 60 * 1000, // min * second * millisecond
+    }
+  );
+
+  return {
+    employees,
     isLoading,
   };
 }

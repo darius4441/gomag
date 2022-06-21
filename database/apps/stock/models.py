@@ -210,6 +210,12 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    def isAlert(self):
+        if self.real_quantity <= self.alert_stock:
+            return True
+        else:
+            return False
+
     def getReplenish(self):
         if self.optimal_stock:
             return self.optimal_stock - self.real_quantity

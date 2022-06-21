@@ -6,10 +6,12 @@ import { useField, useForm } from "vee-validate";
 import { computed, onMounted, onUnmounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
 import * as zod from "zod";
+import { useProducts } from "../../composables";
 import { useTempStore } from "../../stores/temp";
 
 // init utils composables to variables
 const pageStore = useTempStore();
+const { refetch } = useProducts();
 const router = useRouter();
 const toast = useToast();
 
@@ -167,6 +169,8 @@ const onSubmit = handleSubmit(async () => {
     await axios
       .post("/api/v1/stock/products/", formData)
       .then((res) => {
+        refetch.value();
+
         resetForm();
 
         toast.add({

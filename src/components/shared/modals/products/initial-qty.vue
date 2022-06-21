@@ -19,7 +19,7 @@ const props = defineProps({
   product: { type: Object, default: () => {} },
 });
 
-const emits = defineEmits(["closeModal", "refreshProduct"]);
+const emits = defineEmits(["closeModal", "refreshProduct", "refreshProducts"]);
 
 const toast = useToast();
 
@@ -60,6 +60,7 @@ const onSubmit = handleSubmit(async (values) => {
     .patch(`api/v1/stock/products/${props.product.id}/`, values)
     .then(() => {
       emits("refreshProduct");
+      emits("refreshProducts");
 
       toast.add({
         severity: "success",

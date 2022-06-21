@@ -10,6 +10,7 @@ import {
   ShoppingBagIcon,
   TruckIcon,
   UserGroupIcon,
+  UserIcon,
 } from "@heroicons/vue/solid";
 import { computed, ref } from "vue-demi";
 import { RouterLink } from "vue-router";
@@ -32,6 +33,11 @@ const sidebarItem = ref([
     label: "Contacts",
     icon: "contact",
     toRoute: "Contacts",
+  },
+  {
+    label: "Employé",
+    icon: "user",
+    toRoute: "Employee",
   },
   {
     label: "Entrées - Sorties",
@@ -100,6 +106,13 @@ const sidebarItem = ref([
               />
               <UserGroupIcon
                 v-else-if="side.icon == 'contact'"
+                :class="[
+                  side.label == navTitle ? 'text-kWhiteColor' : 'font-medium',
+                  'inline-block h-5 w-5',
+                ]"
+              />
+              <UserIcon
+                v-else-if="side.icon == 'user'"
                 :class="[
                   side.label == navTitle ? 'text-kWhiteColor' : 'font-medium',
                   'inline-block h-5 w-5',

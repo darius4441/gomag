@@ -1,33 +1,25 @@
 <script setup>
-import { ref, onMounted, computed } from "vue-demi";
+import { computed, onMounted, ref } from "vue-demi";
 import { useTempStore } from "../stores/temp";
 
-import moment from "moment";
 import axios from "axios";
-import { ArrowSmLeftIcon, ArrowSmRightIcon } from "@heroicons/vue/solid";
+import moment from "moment";
 
 import react from "@/assets/images/react.jpg";
 import ChartsBarChart from "../components/charts/bar-chart.vue";
-import QuickInfoCard from "../components/dashboard/quick-info-card.vue";
 import AlertProductData from "../components/dashboard/alert-product-data.vue";
 import BestArticlePerformanceCard from "../components/dashboard/best-article-performance-card.vue";
+import QuickInfoCard from "../components/dashboard/quick-info-card.vue";
 
 // access to store and router in composition mode
 const pageStore = useTempStore();
 
-const alertProducts = ref([]);
 const totalDailySale = ref(0);
 const totalDailyInvoice = ref("");
 const totalStockValue = ref(0);
 const totalSales = ref(0);
 const chartLabel = ref([]);
 const chartDataset = ref([]);
-
-const currentPage = ref(1);
-
-// display pagination button
-const asPreviousPage = ref([false]);
-const asNextPage = ref([false]);
 
 const quickInfoData = ref([
   {
@@ -96,40 +88,6 @@ const chartData = ref({
   },
 });
 
-async function getalertProducts() {
-  asPreviousPage.value = false;
-  asNextPage.value = false;
-
-  await axios
-    .get(`/api/v1/stock/alert_products/?page=${currentPage.value}`)
-    .then((response) => {
-      alertProducts.value = response.data.results;
-
-      if (response.data.previous) {
-        asPreviousPage.value = true;
-      }
-
-      if (response.data.next) {
-        asNextPage.value = true;
-      }
-    })
-    .catch((error) => {
-      console.log(JSON.stringify(error));
-    });
-}
-
-function goToPreviousPage() {
-  currentPage.value -= 1;
-
-  getalertProducts();
-}
-
-function goToNextPage() {
-  currentPage.value += 1;
-
-  getalertProducts();
-}
-
 const bestArticle = ref({
   article: "React Material Dashboard",
   photoUrl: react,
@@ -196,7 +154,6 @@ async function getDashboardData() {
 onMounted(() => {
   pageStore.updatePageName("Tableau de bord");
 
-  getalertProducts();
   getDashboardData();
 });
 </script>
@@ -225,30 +182,9 @@ onMounted(() => {
 
       <!-- alert product table -->
       <div
-        class="h-56 px-3 w-full overflow-auto rounded-md border-2 border-slate-300 print:h-auto"
+        class="px-3 w-full rounded-md border-2 border-slate-300 print:h-auto"
       >
-        <h3 class="mb-2 text-lg font-semibold">Articles en alerte</h3>
-        <AlertProductData :initialData="alertProducts" />
-        <div
-          v-if="currentPage >= 1"
-          class="flex flex-row items-center justify-end gap-x-4 p-3"
-        >
-          <button
-            v-if="asPreviousPage"
-            @click="goToPreviousPage"
-            class="mb-1 rounded px-6 py-1 text-xs font-bold uppercase text-kPrimaryColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:shadow-md hover:ring-2 focus:outline-none dark:text-kWhiteColor dark:ring-kWhiteColor sm:mr-2"
-          >
-            <ArrowSmLeftIcon class="h-5 w-5" />
-          </button>
-
-          <button
-            v-if="asNextPage"
-            @click="goToNextPage"
-            class="mb-1 rounded px-6 py-1 text-xs font-bold uppercase text-kPrimaryColor shadow outline-none ring-1 ring-kPrimaryColor transition-all duration-150 ease-linear hover:shadow-md hover:ring-2 focus:outline-none dark:text-kWhiteColor dark:ring-kWhiteColor sm:mr-2"
-          >
-            <ArrowSmRightIcon class="h-5 w-5" />
-          </button>
-        </div>
+        <AlertProductData />
       </div>
     </div>
 

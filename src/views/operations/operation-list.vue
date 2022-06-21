@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
+import { FilterMatchMode } from "primevue/api";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref } from "vue-demi";
 import { useRouter } from "vue-router";
@@ -23,36 +23,15 @@ const isShowAlertItemModal = ref(false);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  getContactName: {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-  },
+  getContactName: { value: null, matchMode: FilterMatchMode.CONTAINS },
   "items.get_article_name": {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+    value: null,
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  m_type: {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-  },
-  state: {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
-  },
-  date: {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
-  },
+  m_type: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  state: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  date: { value: null, matchMode: FilterMatchMode.DATE_AFTER },
 });
-
-const statuses = ref([
-  "unqualified",
-  "qualified",
-  "new",
-  "negotiation",
-  "renewal",
-  "proposal",
-]);
 
 const formatDate = (value) => {
   const dateF = new Date(value);
@@ -90,10 +69,7 @@ async function getContacts() {
 
     for (let i = 0; i < res.data.length; i++) {
       const contact = res.data[i];
-      contacts.value.push({
-        label: contact.name,
-        filterBy: `contact__id=${contact.id}`,
-      });
+      contacts.value.push(contact.name);
     }
   });
 }
@@ -113,6 +89,50 @@ async function getAlertProducts() {
       });
     });
 }
+
+const formatState = (state) => {
+  switch (state) {
+    case "done":
+      return "fait";
+
+    case "pending":
+      return "en cours";
+
+    case "draft":
+      return "brouillon";
+
+    default:
+      return "brouillon";
+  }
+};
+
+const formatType = (theType) => {
+  switch (theType) {
+    case "in":
+      return "entrée";
+
+    case "out":
+      return "sortie";
+
+    case "rtn":
+      return "retour";
+
+    default:
+      return "retour";
+  }
+};
+
+const states = ref([
+  { label: "Fait", value: "done" },
+  { label: "En cours", value: "pending" },
+  { label: "Brouillon", value: "draft" },
+]);
+
+const opsTypes = ref([
+  { label: "Entrée", value: "in" },
+  { label: "Sortie", value: "out" },
+  { label: "Retour", value: "rtn" },
+]);
 
 onMounted(async () => {
   pageStore.updatePageName("Entrées - Sorties");
@@ -135,7 +155,7 @@ onMounted(async () => {
 
     <PrimeCard v-if="isLoading" class="p-4">
       <template #content>
-        <div class="flex justify-between mb-4">
+        <div class="flex justi22-between mb-4">
           <PrimeSkeleton width="5rem" height="3rem" />
 
           <PrimeSkeleton width="9rem" height="3rem" class="mr-2" />
@@ -198,8 +218,10 @@ onMounted(async () => {
           :rowHover="true"
           :paginator="true"
           scrollHeight="60vh"
+          stateStorage="session"
+          stateKey="operations-state"
           :value="operations"
-          filterDisplay="menu"
+          filterDisplay="row"
           v-model:filters="filters"
           v-model:selection="selectedOperations"
           @row-click="goToSingleOps($event.data.id)"
@@ -252,6 +274,7 @@ onMounted(async () => {
           <PrimeColumn
             header="Reférence"
             :sortable="false"
+            style="flex: 0 0 16rem"
             class="text-sm truncate"
           >
             <template #body="{ data }">
@@ -259,32 +282,73 @@ onMounted(async () => {
                 dpt1/{{ data.m_type }}{{ data.id }}
               </span>
             </template>
+          </PrimeColumn>
 
-            <template #filter="{ filterModel }">
-              <PrimeInputText
-                type="text"
+          <PrimeColumn
+            field="m_type"
+            header="Type d'opération"
+            sortable
+            inputClass="w-full"
+            class="p-column-filter"
+            style="flex: 0 0 18rem"
+            :filterMenuStyle="{ width: '18rem' }"
+          >
+            <template #body="{ data }">
+              <i
+                v-if="data.m_type == 'in'"
+                class="pi pi-arrow-circle-down text-orange-500 mr-2"
+              >
+              </i>
+              <i
+                v-else-if="data.m_type == 'out'"
+                class="pi pi-arrow-circle-up text-green-500 mr-2"
+              >
+              </i>
+              <i v-else class="pi pi-undo text-red-500 mr-2"> </i>
+              <span class="w-full">
+                {{ formatType(data.m_type) }}
+              </span>
+            </template>
+
+            <template #filter="{ filterModel, filterCallback }">
+              <PrimeDropdown
                 v-model="filterModel.value"
+                @change="filterCallback()"
+                :options="opsTypes"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Tout"
                 class="p-column-filter"
-                placeholder="Chercher par contact"
-              />
+              >
+                <template #value="slotProps">
+                  <span class="w-full" v-if="slotProps.value">
+                    {{ formatType(slotProps.value) }}
+                  </span>
+                  <span v-else>{{ slotProps.placeholder }}</span>
+                </template>
+                <template #option="slotProps">
+                  <span class="w-full">
+                    {{ slotProps.option.label }}
+                  </span>
+                </template>
+              </PrimeDropdown>
             </template>
           </PrimeColumn>
 
           <PrimeColumn
             field="getContactName"
             header="Contact"
-            class="text-sm truncate w-3/12"
+            style="min-width: 30vh"
+            class="text-sm truncate text-center"
           >
-            <template #body="{ data }">
-              {{ data.getContactName }}
-            </template>
-
-            <template #filter="{ filterModel }">
-              <PrimeInputText
-                type="text"
+            <template #filter="{ filterModel, filterCallback }">
+              <PrimeDropdown
                 v-model="filterModel.value"
+                @change="filterCallback()"
+                :options="contacts"
+                placeholder="Tout"
+                inputClass="w-full"
                 class="p-column-filter"
-                placeholder="Chercher par contact"
               />
             </template>
           </PrimeColumn>
@@ -293,52 +357,75 @@ onMounted(async () => {
             field="date"
             header="Date"
             dataType="date"
+            dateFormat="dd/mm/yy"
             :sortable="true"
-            class="text-sm truncate w-1/12"
+            style="flex: 0 0 22rem"
+            class="text-sm truncate"
           >
             <template #body="{ data }">
               {{ formatDate(data.date) }}
             </template>
-            <template #filter="{ filterModel }">
+
+            <template #filter="{ filterModel, filterCallback }">
               <PrimeCalendar
                 v-model="filterModel.value"
+                @change="filterCallback()"
+                placeholder="Tout"
+                inputClass="w-full"
                 dateFormat="dd/mm/yy"
-                placeholder="dd/mm/yyyy"
-              />
+                class="p-column-filter"
+              >
+              </PrimeCalendar>
             </template>
           </PrimeColumn>
 
           <PrimeColumn
-            field="status"
+            field="state"
             header="Etat"
             sortable
+            inputClass="w-full"
+            class="p-column-filter"
+            style="flex: 0 0 14rem"
             :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 10rem"
           >
             <template #body="{ data }">
-              <span :class="'customer-badge state-' + data.state">
-                {{ data.state }}
+              <span :class="'mx-auto customer-badge state-' + data.state">
+                {{ formatState(data.state) }}
               </span>
             </template>
-            <template #filter="{ filterModel }">
-              <Dropdown
+
+            <template #filter="{ filterModel, filterCallback }">
+              <PrimeDropdown
                 v-model="filterModel.value"
-                :options="statuses"
-                placeholder="Any"
+                @change="filterCallback()"
+                :options="states"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Tout"
                 class="p-column-filter"
-                :showClear="true"
               >
                 <template #value="slotProps">
-                  <span :class="'customer-badge state-' + slotProps.value">
-                    {{ slotProps.value }}
+                  <span
+                    :class="
+                      'w-full inset-0 customer-badge state-' + slotProps.value
+                    "
+                    v-if="slotProps.value"
+                  >
+                    {{ formatState(slotProps.value) }}
                   </span>
+                  <span v-else>{{ slotProps.placeholder }}</span>
                 </template>
                 <template #option="slotProps">
-                  <span :class="'customer-badge state-' + slotProps.option">
-                    {{ slotProps.option }}
+                  <span
+                    :class="
+                      'w-full inset-0 customer-badge state-' +
+                      slotProps.option.value
+                    "
+                  >
+                    {{ slotProps.option.label }}
                   </span>
                 </template>
-              </Dropdown>
+              </PrimeDropdown>
             </template>
           </PrimeColumn>
         </PrimeDataTable>
@@ -346,3 +433,28 @@ onMounted(async () => {
     </PrimeCard>
   </div>
 </template>
+
+<style scoped>
+.customer-badge {
+  padding: 0.05rem 1rem 0.05rem 1rem;
+  border-radius: 0.2rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.state-done {
+  color: hsl(120, 70%, 20%);
+  background-color: hsla(120, 70%, 90%, 1);
+}
+
+.state-pending {
+  color: hsl(45, 70%, 20%);
+  background-color: hsla(45, 70%, 90%, 1);
+}
+
+.state-draft {
+  color: hsl(290, 70%, 20%);
+  background-color: hsla(290, 70%, 90%, 1);
+}
+</style>

@@ -27,6 +27,7 @@ const toast = useToast();
 //? declare vars / consts
 const productID = route.params.id;
 const { product, isLoading, refetch } = useProduct(productID);
+const { refetch: refetchP } = useProduct(productID);
 const optMenu = ref();
 
 const productHistory = ref([]);
@@ -286,6 +287,7 @@ onMounted(async () => {
             :isOpen="isShowModal"
             :product="product"
             @refreshProduct="refetch"
+            @refreshProducts="refetchP"
             @closeModal="isShowModal = false"
           />
 

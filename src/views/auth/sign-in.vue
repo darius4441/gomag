@@ -43,65 +43,45 @@ const submitForm = handleSubmit(async () => {
         axios.defaults.headers.common["Authorization"] = "Token " + token;
 
         localStorage.setItem("token", token);
+
+        axios
+          .get("/api/v1/users/me")
+          .then((response) => {
+            storeAuth.setUser({
+              id: response.data.id,
+              email: response.data.email,
+              username: response.data.username,
+              firstName: response.data.first_name,
+              lastName: response.data.last_name,
+              phoneNumber: response.data.phone,
+            });
+
+            localStorage.setItem("userid", response.data.id);
+            localStorage.setItem("email", response.data.email);
+            localStorage.setItem("username", response.data.username);
+            localStorage.setItem("firstName", response.data.first_name);
+            localStorage.setItem("lastName", response.data.last_name);
+            localStorage.setItem("phoneNumber", response.data.phone);
+
+            storeProduct.getProducts;
+
+            // Reset form data and go to Dashboard
+            route.push({ name: "Dashboard" });
+          })
+          .catch((error) => {
+            throw error.message;
+          });
       })
       .catch((error) => {
         if (error.response) {
           for (const property in error.response.data) {
-            toast.add({
-              severity: "error",
-              summary: "Une erreur s'est produite",
-              detail: `${error.response.data[property]}`,
-              life: 3000,
-            });
+            throw `${error.response.data[property]}`;
           }
         } else if (error.message) {
-          toast.add({
-            severity: "error",
-            summary: "Une erreur s'est produite",
-            detail: JSON.stringify(error.message),
-            life: 3000,
-          });
+          throw JSON.stringify(error.message);
         } else {
-          toast.add({
-            severity: "error",
-            summary: "Une erreur s'est produite",
-            detail: JSON.stringify(error),
-            life: 3000,
-          });
+          JSON.stringify(error);
         }
-      });
-
-    await axios
-      .get("/api/v1/users/me")
-      .then((response) => {
-        storeAuth.setUser({
-          id: response.data.id,
-          email: response.data.email,
-          username: response.data.username,
-          firstName: response.data.first_name,
-          lastName: response.data.last_name,
-          phoneNumber: response.data.phone,
-        });
-
-        localStorage.setItem("userid", response.data.id);
-        localStorage.setItem("email", response.data.email);
-        localStorage.setItem("username", response.data.username);
-        localStorage.setItem("firstName", response.data.first_name);
-        localStorage.setItem("lastName", response.data.last_name);
-        localStorage.setItem("phoneNumber", response.data.phone);
-
-        storeProduct.getProducts;
-
-        // Reset form data and go to Dashboard
-        route.push({ name: "Dashboard" });
-      })
-      .catch((error) => {
-        toast.add({
-          severity: "error",
-          summary: "Une erreur s'est produite",
-          detail: JSON.stringify(error.message),
-          life: 3000,
-        });
       });
   } catch (err) {
     toast.add({
